@@ -26,36 +26,11 @@ on:
         type: string
 
 jobs:
-  check-trigger:
+  build:
     runs-on: ubuntu-latest
     if: |
       github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'workflow_run' && 
-       github.event.workflow_run.conclusion == 'success' && 
-       startsWith(github.event.workflow_run.head_branch, 'v'))
-    outputs:
-      should_deploy: ${{ steps.check.outputs.should_deploy }}
-      is_tag: ${{ steps.check.outputs.is_tag }}
-    
-    steps:
-      - name: Check if should deploy
-        id: check
-        run: |
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            echo "should_deploy=true" >> $GITHUB_OUTPUT
-            echo "is_tag=false" >> $GITHUB_OUTPUT
-          elif [[ "${{ github.event.workflow_run.head_branch }}" == v* ]]; then
-            echo "should_deploy=true" >> $GITHUB_OUTPUT
-            echo "is_tag=true" >> $GITHUB_OUTPUT
-          else
-            echo "should_deploy=false" >> $GITHUB_OUTPUT
-            echo "is_tag=false" >> $GITHUB_OUTPUT
-          fi
-
-  build:
-    needs: check-trigger
-    runs-on: ubuntu-latest
-    if: needs.check-trigger.outputs.should_deploy == 'true'
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
     outputs:
       jar_path: ${{ steps.plugin_info.outputs.jar_path }}
       jar_name: ${{ steps.plugin_info.outputs.jar_name }}
@@ -87,9 +62,14 @@ jobs:
         run: |
           if [[ -n "${{ github.event.inputs.version }}" ]]; then
             VERSION="${{ github.event.inputs.version }}"
-          elif [[ "${{ github.event.workflow_run.head_branch }}" == v* ]]; then
-            VERSION="${{ github.event.workflow_run.head_branch }}"
-            VERSION=${VERSION#v}
+          elif [[ "${{ github.event_name }}" == "workflow_run" ]]; then
+            # Extract version from tag name in the branch
+            BRANCH="${{ github.event.workflow_run.head_branch }}"
+            if [[ "$BRANCH" == v* ]]; then
+              VERSION="${BRANCH#v}"
+            else
+              VERSION=$(date +'%Y.%m.%d-%H%M%S')
+            fi
           else
             VERSION=$(date +'%Y.%m.%d-%H%M%S')
           fi
