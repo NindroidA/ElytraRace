@@ -13,10 +13,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 🧪 Download built artifact
+      - name: 🧪 Download all artifacts
         uses: actions/download-artifact@v4
         with:
-          name: ElytraRace-*
           path: ./artifact
 
       - name: 📁 List downloaded files
@@ -26,26 +25,24 @@ jobs:
         id: info
         run: |
           JAR_FILE=$(find artifact -name "*.jar" | head -n 1)
+          if [ -z "$JAR_FILE" ]; then
+            echo "❌ No JAR file found."
+            exit 1
+          fi
           echo "JAR_FILE=$JAR_FILE" >> $GITHUB_OUTPUT
+
           VERSION=$(echo "$JAR_FILE" | sed -E 's/.*ElytraRace-(.*)\.jar/\1/')
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
 
-      # -----------------------------------------------------
-      # GitHub Release
-      # -----------------------------------------------------
       - name: 🏷️ Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           files: ${{ steps.info.outputs.JAR_FILE }}
           tag_name: v${{ steps.info.outputs.VERSION }}
           name: ElytraRace v${{ steps.info.outputs.VERSION }}
-          draft: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # -----------------------------------------------------
-      # Modrinth Upload
-      # -----------------------------------------------------
       - name: 🔍 Check Modrinth configuration
         id: modrinth_check
         run: |
@@ -78,12 +75,8 @@ jobs:
 
       - name: ⏭️ Skipping Modrinth Upload
         if: steps.modrinth_check.outputs.configured == 'false'
-        run: |
-          echo "⏭️ Modrinth upload skipped — missing MODRINTH_TOKEN or MODRINTH_PROJECT_ID"
+        run: echo "⏭️ Modrinth upload skipped — missing MODRINTH_TOKEN or MODRINTH_PROJECT_ID"
 
-      # -----------------------------------------------------
-      # Spigot Upload
-      # -----------------------------------------------------
       - name: 🔍 Check Spigot configuration
         id: spigot_check
         run: |
@@ -103,7 +96,6 @@ jobs:
           name: "ElytraRace ${{ steps.info.outputs.VERSION }}"
           version: ${{ steps.info.outputs.VERSION }}
 
-      - name: ⏭️ Skipping SpigotMC Upload
+      - name: ⏭️ Skipping Spigot Upload
         if: steps.spigot_check.outputs.configured == 'false'
-        run: |
-          echo "⏭️ SpigotMC upload skipped — missing SPIGOT_TOKEN or SPIGOT_RESOURCE_ID"
+        run: echo "⏭️ Spigot upload skipped — missing SPIGOT_TOKEN or SPIGOT_RESOURCE_ID"
