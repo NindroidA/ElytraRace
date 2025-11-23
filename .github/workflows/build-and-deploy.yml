@@ -1,0 +1,154 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  JAVA_VERSION: "21"
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # ----------------------------------------------------
+      # Checkout + Setup Java
+      # ----------------------------------------------------
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: ☕ Set up Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: temurin
+          cache: maven
+
+      # ----------------------------------------------------
+      # Build Plugin
+      # ----------------------------------------------------
+      - name: 🔨 Build with Maven
+        run: mvn -B clean package -DskipTests
+
+      # ----------------------------------------------------
+      # Find JAR + Version
+      # ----------------------------------------------------
+      - name: 📦 Find JAR and extract version
+        id: jarinfo
+        run: |
+          JAR=$(find target -name "ElytraRace-*.jar" | head -1)
+          if [ -z "$JAR" ]; then
+            echo "❌ JAR not found!"
+            exit 1
+          fi
+          echo "JAR_FILE=$JAR" >> $GITHUB_OUTPUT
+
+          VERSION=$(echo "$JAR" | sed -E 's/.*ElytraRace-(.*)\.jar/\1/')
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+
+          echo "Detected JAR: $JAR"
+          echo "Detected Version: $VERSION"
+
+      # ----------------------------------------------------
+      # Create Git Tag if missing
+      # ----------------------------------------------------
+      - name: 🏷 Create git tag
+        run: |
+          TAG="v${{ steps.jarinfo.outputs.VERSION }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git fetch --tags
+
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "Tag $TAG exists."
+          else
+            git tag -a "$TAG" -m "Release $TAG"
+            git push origin "$TAG"
+            echo "Created tag $TAG"
+          fi
+
+      # ----------------------------------------------------
+      # GitHub Release
+      # ----------------------------------------------------
+      - name: 🚀 GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.jarinfo.outputs.VERSION }}
+          files: ${{ steps.jarinfo.outputs.JAR_FILE }}
+          name: ElytraRace v${{ steps.jarinfo.outputs.VERSION }}
+          body: |
+            Automated release for ElytraRace v${{ steps.jarinfo.outputs.VERSION }}.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # ----------------------------------------------------
+      # Modrinth Upload (optional)
+      # ----------------------------------------------------
+      - name: 🔍 Check Modrinth config
+        id: modrinth_check
+        run: |
+          if [ -n "${{ secrets.MODRINTH_TOKEN }}" ] && [ -n "${{ vars.MODRINTH_PROJECT_ID }}" ]; then
+            echo "configured=true" >> $GITHUB_OUTPUT
+          else
+            echo "configured=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 📤 Upload to Modrinth
+        if: steps.modrinth_check.outputs.configured == 'true'
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          modrinth-id: ${{ vars.MODRINTH_PROJECT_ID }}
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          files: ${{ steps.jarinfo.outputs.JAR_FILE }}
+          name: ElytraRace ${{ steps.jarinfo.outputs.VERSION }}
+          version: ${{ steps.jarinfo.outputs.VERSION }}
+          version-type: release
+          loaders: |
+            paper
+            spigot
+            purpur
+          game-versions: |
+            1.21
+            1.21.1
+            1.21.2
+            1.21.3
+            1.21.4
+
+      - name: ⏭️ Skipping Modrinth upload
+        if: steps.modrinth_check.outputs.configured == 'false'
+        run: echo "Modrinth upload skipped — token or project ID missing."
+
+      # ----------------------------------------------------
+      # SpigotMC Upload (optional)
+      # ----------------------------------------------------
+      - name: 🔍 Check Spigot config
+        id: spigot_check
+        run: |
+          if [ -n "${{ secrets.SPIGOT_TOKEN }}" ] && [ -n "${{ vars.SPIGOT_RESOURCE_ID }}" ]; then
+            echo "configured=true" >> $GITHUB_OUTPUT
+          else
+            echo "configured=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 📤 Upload to SpigotMC
+        if: steps.spigot_check.outputs.configured == 'true'
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          spigot-id: ${{ vars.SPIGOT_RESOURCE_ID }}
+          spigot-token: ${{ secrets.SPIGOT_TOKEN }}
+          files: ${{ steps.jarinfo.outputs.JAR_FILE }}
+          name: ElytraRace ${{ steps.jarinfo.outputs.VERSION }}
+          version: ${{ steps.jarinfo.outputs.VERSION }}
+
+      - name: ⏭️ Skipping SpigotMC upload
+        if: steps.spigot_check.outputs.configured == 'false'
+        run: echo "Spigot upload skipped — token or resource ID missing."
+
+      # ----------------------------------------------------
+      # Done
+      # ----------------------------------------------------
+      - name: 🎉 Finished
+        run: echo "Build + Release + Deploy complete!"
