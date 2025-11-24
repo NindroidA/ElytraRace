@@ -431,7 +431,7 @@ public class RaceCommand implements CommandExecutor, TabCompleter {
             return Particle.valueOf(particleName);
         } catch (IllegalArgumentException e) {
             plugin.getLogger().warning("Invalid particle type: " + particleName + ", using VILLAGER_HAPPY");
-            return Particle.VILLAGER_HAPPY;
+            return Particle.HAPPY_VILLAGER;
         }
     }
 
