@@ -32,13 +32,14 @@ public class PlayerRaceData {
 
     // Rocket tracking
     private int rocketsUsed = 0;
-    private static final int MAX_ROCKETS = 3;
+    private int maxRockets;
 
     // Ring order tracking (for backward detection)
     private String lastRingPassed = null;
 
-    public PlayerRaceData(UUID playerUuid) {
+    public PlayerRaceData(UUID playerUuid, int maxRockets) {
         this.playerUuid = playerUuid;
+        this.maxRockets = maxRockets;
         this.ringsPassed = new LinkedHashSet<>();
     }
 
@@ -67,8 +68,8 @@ public class PlayerRaceData {
 
     /** Use a rocket */
     public boolean useRocket() {
-        if (rocketsUsed >= MAX_ROCKETS) {
-            disqualify("Exceeded maximum rockets (" + MAX_ROCKETS + ")");
+        if (rocketsUsed >= maxRockets) {
+            disqualify("Exceeded maximum rockets (" + maxRockets + ")");
             return false;
         }
         rocketsUsed++;
@@ -132,8 +133,12 @@ public class PlayerRaceData {
         return rocketsUsed;
     }
 
+    public int getMaxRockets() {
+        return maxRockets;
+    }
+
     public int getRemainingRockets() {
-        return MAX_ROCKETS - rocketsUsed;
+        return maxRockets - rocketsUsed;
     }
 
     public String getLastRingPassed() {

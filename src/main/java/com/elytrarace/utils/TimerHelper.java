@@ -14,7 +14,8 @@ import com.elytrarace.ElytraRacePlugin;
 import com.elytrarace.data.PlayerRaceData;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
+
+import java.util.UUID;
 
 /**
  * Timer helper — shows action bar timer and center countdown titles.
@@ -41,8 +42,9 @@ public class TimerHelper {
     }
 
     public void showTimerToAll(long seconds) {
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            if (plugin.getRaceManager().getRacePlayers().containsKey(player.getUniqueId())) {
+        for (UUID uuid : plugin.getRaceManager().getRacePlayers().keySet()) {
+            Player player = Bukkit.getPlayer(uuid);
+            if (player != null) {
                 showTimer(player, seconds);
             }
         }
@@ -95,8 +97,9 @@ public class TimerHelper {
     }
 
     public void broadcastCenterCountdownStep(int stepIndex) {
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            if (plugin.getRaceManager().getRacePlayers().containsKey(p.getUniqueId())) {
+        for (UUID uuid : plugin.getRaceManager().getRacePlayers().keySet()) {
+            Player p = Bukkit.getPlayer(uuid);
+            if (p != null) {
                 showCenterCountdownStep(p, stepIndex);
             }
         }

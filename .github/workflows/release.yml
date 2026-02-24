@@ -33,8 +33,25 @@ jobs:
           echo "path=$JAR_FILE" >> "$GITHUB_OUTPUT"
           echo "name=$(basename "$JAR_FILE")" >> "$GITHUB_OUTPUT"
 
+      - name: Extract version from tag
+        id: version
+        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          name: ElytraRace v${{ steps.version.outputs.version }}
           files: ${{ steps.jar.outputs.path }}
           generate_release_notes: true
+          body: |
+            ## ElytraRace v${{ steps.version.outputs.version }}
+
+            Download **${{ steps.jar.outputs.name }}** below and place it in your server's `plugins/` folder.
+
+            ### Installation
+            1. Download `${{ steps.jar.outputs.name }}`
+            2. Stop your server
+            3. Place the JAR in your `plugins/` folder
+            4. Start your server
+
+            See the full changelog below.

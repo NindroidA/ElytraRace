@@ -100,13 +100,14 @@ public class RaceCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage("§e1. §fFly through §aALL rings §fin order");
         sender.sendMessage("§e2. §fDo NOT skip any rings");
         sender.sendMessage("§e3. §fDo NOT go backwards through rings");
-        sender.sendMessage("§e4. §fMax §c" + plugin.getConfigManager().getRequiredRockets() + " firework rockets §fper race");
-        sender.sendMessage("§e5. §fMust complete all §e" + plugin.getConfigManager().getRingLocations().size() + " rings §fbefore finish");
-        sender.sendMessage("§e6. §fTime limit: §c" + plugin.getConfigManager().getAutoFinishTime() + " seconds");
+        sender.sendMessage("§e4. §fRequire §c" + plugin.getConfigManager().getRequiredRockets() + " rockets §fto ready up");
+        sender.sendMessage("§e5. §fMax §c" + plugin.getConfigManager().getMaxRocketUses() + " rocket boosts §fduring race");
+        sender.sendMessage("§e6. §fMust complete all §e" + plugin.getConfigManager().getRingLocations().size() + " rings §fbefore finish");
+        sender.sendMessage("§e7. §fTime limit: §c" + plugin.getConfigManager().getAutoFinishTime() + " seconds");
         sender.sendMessage("");
         sender.sendMessage("§c§lDISQUALIFICATION:");
         sender.sendMessage("§8• §cSkipping any ring");
-        sender.sendMessage("§8• §c3+ rocket violations");
+        sender.sendMessage("§8• §cExceeding rocket boost limit");
         sender.sendMessage("§8• §cGoing backwards through rings");
         sender.sendMessage("§8• §cDisconnecting mid-race");
         sender.sendMessage("§6§l╚═════════════════════════╝");
@@ -134,7 +135,7 @@ public class RaceCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage("§6§l╔═══ YOUR PROGRESS ═══╗");
         sender.sendMessage("§eRings: §a" + passed + "§7/§e" + total);
         sender.sendMessage("§eTime: §a" + String.format("%.2f", time) + "s");
-        sender.sendMessage("§eRockets Used: §a" + data.getRocketsUsed() + "§7/§c3");
+        sender.sendMessage("§eRockets Used: §a" + data.getRocketsUsed() + "§7/§c" + data.getMaxRockets());
         sender.sendMessage("§6§l╚══════════════════════╝");
         return true;
     }

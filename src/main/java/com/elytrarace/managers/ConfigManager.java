@@ -30,10 +30,8 @@ public class ConfigManager {
         plugin.getConfig().addDefault("race.ready-timeout-seconds", 120);
         plugin.getConfig().addDefault("race.max-time-minutes", 30);
         
-        // NEW: Feature 2 - Rocket requirement
         plugin.getConfig().addDefault("race.required-rockets", 64);
-        
-        // NEW: Feature 10 - Auto-finish timer
+        plugin.getConfig().addDefault("race.max-rocket-uses", 3);
         plugin.getConfig().addDefault("race.auto-finish-time", 180);
         
         // NEW: Feature 3 - Region import settings
@@ -109,12 +107,14 @@ public class ConfigManager {
         return plugin.getConfig().getInt("race.max-time-minutes", 30);
     }
     
-    // NEW: Feature 2
     public int getRequiredRockets() {
         return plugin.getConfig().getInt("race.required-rockets", 64);
     }
-    
-    // NEW: Feature 10
+
+    public int getMaxRocketUses() {
+        return plugin.getConfig().getInt("race.max-rocket-uses", 3);
+    }
+
     public int getAutoFinishTime() {
         return plugin.getConfig().getInt("race.auto-finish-time", 180);
     }

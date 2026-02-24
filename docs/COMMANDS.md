@@ -1,6 +1,6 @@
 # 📋 Commands Reference
 
-Complete command reference for ElytraRace v1.1.0
+Complete command reference for ElytraRace v1.3.0
 
 ---
 
@@ -39,8 +39,9 @@ Example output:
 1. Fly through ALL rings in order
 2. Do NOT skip any rings
 3. Do NOT go backwards
-4. Max 64 rockets per race
-5. Time limit: 180 seconds
+4. Require 64 rockets to ready up
+5. Max 3 rocket boosts during race
+6. Time limit: 180 seconds
 ║                        ║
 DISQUALIFICATION:
 • Skipping rings
@@ -104,7 +105,7 @@ View race statistics for yourself or another player.
 ---
 
 ### `/er pb [player]`
-**NEW v1.1.0** - View personal best time.
+**NEW v1.3.0** - View personal best time.
 
 **Permission**: `race.use`  
 **Aliases**: `/race pb`, `/elytra personalbest`  
@@ -195,7 +196,7 @@ Total: 3 ring(s)
 ## 🔧 Admin Commands
 
 ### `/er forcejoin <player>`
-**NEW v1.1.0** - Force teleport a player to the race lobby.
+**NEW v1.3.0** - Force teleport a player to the race lobby.
 
 **Permission**: `race.admin`  
 **Usage**: `/er forcejoin <player>`
@@ -216,7 +217,7 @@ Error:   ❌ Lobby is full!
 ---
 
 ### `/er testmode`
-**NEW v1.1.0** - Toggle admin test mode.
+**NEW v1.3.0** - Toggle admin test mode.
 
 **Permission**: `race.admin`  
 **Usage**: `/er testmode`
@@ -235,7 +236,7 @@ Disabled: ✅ Test mode ended.
 ---
 
 ### `/er import rings`
-**NEW v1.1.0** - Import WorldGuard regions as race rings.
+**NEW v1.3.0** - Import WorldGuard regions as race rings.
 
 **Permission**: `race.admin`  
 **Usage**: `/er import rings`
@@ -258,7 +259,7 @@ Error:   ❌ WorldEdit/WorldGuard not found!
 ---
 
 ### `/er preview`
-**NEW v1.1.0** - Toggle ring preview with particles.
+**NEW v1.3.0** - Toggle ring preview with particles.
 
 **Permission**: `race.admin`  
 **Usage**: `/er preview`
@@ -277,7 +278,7 @@ Disabled: ❌ Ring preview disabled.
 ---
 
 ### `/er platform <create|remove>`
-**NEW v1.1.0** - Manage starting platforms.
+**NEW v1.3.0** - Manage starting platforms.
 
 **Permission**: `race.admin`  
 **Usage**: 
@@ -639,12 +640,10 @@ All `/er` commands can use alternative prefixes:
 
 ## 🆘 Need Help?
 
-- 💬 [Discord Support](https://discord.gg/YOUR_INVITE)
-- 📖 [Full Documentation](https://github.com/Kartik-Fulara/ElytraRace/wiki)
-- 🐛 [Report Issues](https://github.com/Kartik-Fulara/ElytraRace/issues)
-- 📧 Email: kartikfulara2003@gmail.com
+- 🐛 [Report Issues](https://github.com/NindroidA/ElytraRace/issues)
+- 💡 [Discussions](https://github.com/NindroidA/ElytraRace/discussions)
 
 ---
 
-**Last Updated**: v1.1.0  
-**Maintained By**: Kartik Fulara
+**Last Updated**: v1.3.0
+**Originally By**: Kartik Fulara | **Maintained By**: NindroidA

@@ -97,7 +97,7 @@ public class RaceManager {
 
     public void playerEnteredStart(Player player) {
         startLobbyPlayers.add(player.getUniqueId());
-        racePlayers.putIfAbsent(player.getUniqueId(), new PlayerRaceData(player.getUniqueId()));
+        racePlayers.putIfAbsent(player.getUniqueId(), new PlayerRaceData(player.getUniqueId(), cfg.getMaxRocketUses()));
         
         // Show rules on enter
         showJoinRules(player);
@@ -166,7 +166,6 @@ public class RaceManager {
         }
     }
 
-    // NEW: Feature 2 - Validate ready requirements
     private boolean validateReadyRequirements(Player player) {
         // Check elytra
         ItemStack chestplate = player.getInventory().getChestplate();
@@ -175,28 +174,22 @@ public class RaceManager {
             return false;
         }
 
-        // Check inventory (must be empty except armor)
+        // Use getStorageContents() to exclude armor slots (fixes elytra being counted as an item)
         int itemCount = 0;
-        for (ItemStack item : player.getInventory().getContents()) {
+        int rocketCount = 0;
+        for (ItemStack item : player.getInventory().getStorageContents()) {
             if (item != null && item.getType() != Material.AIR) {
                 itemCount++;
-            }
-        }
-        
-        // Count rockets
-        int rocketCount = 0;
-        for (ItemStack item : player.getInventory().getContents()) {
-            if (item != null && item.getType() == Material.FIREWORK_ROCKET) {
-                rocketCount += item.getAmount();
+                if (item.getType() == Material.FIREWORK_ROCKET) {
+                    rocketCount += item.getAmount();
+                }
             }
         }
 
-        // Check if only rockets and armor
-        if (itemCount > 0) {
-            if (rocketCount != itemCount) {
-                player.sendMessage(cfg.getPrefix() + cfg.getMessage("inventory-not-empty"));
-                return false;
-            }
+        // Inventory must only contain rockets
+        if (itemCount > 0 && rocketCount == 0) {
+            player.sendMessage(cfg.getPrefix() + cfg.getMessage("inventory-not-empty"));
+            return false;
         }
 
         // Check rocket count
@@ -214,7 +207,7 @@ public class RaceManager {
     // NEW: Feature 5 - Test mode
     public void enableTestMode(Player player) {
         testModePlayers.add(player.getUniqueId());
-        racePlayers.putIfAbsent(player.getUniqueId(), new PlayerRaceData(player.getUniqueId()));
+        racePlayers.putIfAbsent(player.getUniqueId(), new PlayerRaceData(player.getUniqueId(), cfg.getMaxRocketUses()));
         
         PlayerRaceData data = racePlayers.get(player.getUniqueId());
         data.startRace();
@@ -537,6 +530,10 @@ public class RaceManager {
                 pos++;
             } else {
                 broadcastToAll("§7DNF: §f" + p.getName());
+                // Track DNF races in stats (race count without a win)
+                if (!isInTestMode(e.getKey())) {
+                    plugin.getStatsManager().addRace(e.getKey());
+                }
             }
         }
         broadcastToAll("§6§l========================");

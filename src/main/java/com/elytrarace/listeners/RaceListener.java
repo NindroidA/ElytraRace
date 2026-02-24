@@ -21,6 +21,8 @@ import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import org.bukkit.entity.EntityType;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -34,9 +36,6 @@ public class RaceListener implements Listener {
     private final RaceManager raceManager;
     private final RegionManager regionManager;
 
-    // OPTIMIZATION: Cache last location to avoid unnecessary checks
-    private final Map<UUID, Location> lastCheckedLocation = new HashMap<>();
-    
     // OPTIMIZATION: Cache region states to avoid repeated region checks
     private final Map<UUID, Boolean> inStartCache = new HashMap<>();
     private final Map<UUID, Long> lastRegionCheck = new HashMap<>();
@@ -181,7 +180,7 @@ public class RaceListener implements Listener {
         if (!player.isGliding()) return;
         
         // Check if it's a firework rocket
-        if (event.getEntity().getType().toString().equals("FIREWORK")) {
+        if (event.getEntity().getType() == EntityType.FIREWORK_ROCKET) {
             var data = raceManager.getRacePlayers().get(player.getUniqueId());
             if (data != null && !data.isFinished()) {
                 boolean allowed = data.useRocket();
@@ -200,7 +199,6 @@ public class RaceListener implements Listener {
         UUID uuid = player.getUniqueId();
         
         // Clean up caches
-        lastCheckedLocation.remove(uuid);
         inStartCache.remove(uuid);
         lastRegionCheck.remove(uuid);
         lastBoundaryCheck.remove(uuid); // NEW

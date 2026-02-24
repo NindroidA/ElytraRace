@@ -1,6 +1,6 @@
 # 📦 Installation & Setup Guide
 
-Complete installation guide for ElytraRace v1.1.0
+Complete installation guide for ElytraRace v1.3.0
 
 ---
 
@@ -54,7 +54,7 @@ wget https://dev.bukkit.org/projects/worldedit/files/latest
 
 ### Optional Dependencies
 
-#### WorldGuard (Recommended for v1.1.0+)
+#### WorldGuard (Recommended for v1.3.0+)
 **Version**: 7.0.13 or newer  
 **Download**: [EngineHub WorldGuard](https://enginehub.org/worldguard/)
 
@@ -84,14 +84,14 @@ Choose one:
 ```bash
 # Download latest release
 cd ~/minecraft-server/plugins/
-wget https://github.com/Kartik-Fulara/ElytraRace/releases/latest/download/ElytraRace.jar
+wget https://github.com/NindroidA/ElytraRace/releases/latest/download/ElytraRace.jar
 ```
 
 #### Option B: Build from Source
 
 ```bash
 # Clone repository
-git clone https://github.com/Kartik-Fulara/ElytraRace.git
+git clone https://github.com/NindroidA/ElytraRace.git
 cd ElytraRace
 
 # Build with Maven
@@ -130,7 +130,7 @@ Watch the server console for:
   ✅ WorldEdit: FOUND
   ✅ WorldGuard: FOUND
 
-[ElytraRace] Plugin enabled successfully (v1.1.0)
+[ElytraRace] Plugin enabled successfully (v1.3.0)
 [ElytraRace] Ready for elytra racing!
 ```
 
@@ -173,7 +173,7 @@ Edit `plugins/ElytraRace/config.yml`:
 
 ```yaml
 ############################################################
-#              ELYTRA RACE CONFIGURATION v1.1.0
+#              ELYTRA RACE CONFIGURATION v1.3.0
 ############################################################
 
 race:
@@ -457,7 +457,7 @@ region-import:
 
 ## 🔄 Updating
 
-### From v1.0.x to v1.1.0
+### From v1.0.x to v1.3.0
 
 #### Step 1: Backup Current Installation
 
@@ -477,7 +477,7 @@ tar -czf ~/backups/elytrarace-config-$(date +%Y%m%d).tar.gz plugins/ElytraRace/*
 ```bash
 cd plugins/
 mv ElytraRace.jar ElytraRace-1.0.0-backup.jar
-wget https://github.com/Kartik-Fulara/ElytraRace/releases/latest/download/ElytraRace.jar
+wget https://github.com/NindroidA/ElytraRace/releases/latest/download/ElytraRace.jar
 ```
 
 #### Step 3: Start Server
@@ -491,7 +491,7 @@ cd ..
 
 Check console for:
 ```
-[ElytraRace] Plugin enabled successfully (v1.1.0)
+[ElytraRace] Plugin enabled successfully (v1.3.0)
 [ElytraRace] NEW FEATURES:
 [ElytraRace]   • Force Join System
 [ElytraRace]   • Region Import
@@ -610,13 +610,13 @@ After installation:
 
 ## 🆘 Getting Help
 
-- **Discord**: [Join support server](https://discord.gg/YOUR_INVITE)
-- **GitHub**: [Open an issue](https://github.com/Kartik-Fulara/ElytraRace/issues)
-- **Wiki**: [Read documentation](https://github.com/Kartik-Fulara/ElytraRace/wiki)
-- **Email**: kartikfulara2003@gmail.com
+- **Discord**: [Join support server](https://github.com/NindroidA/ElytraRace/discussions)
+- **GitHub**: [Open an issue](https://github.com/NindroidA/ElytraRace/issues)
+- **Wiki**: [Read documentation](https://github.com/NindroidA/ElytraRace/wiki)
+- **Email**: https://github.com/NindroidA/ElytraRace/issues
 
 ---
 
-**Installation Guide v1.1.0**  
+**Installation Guide v1.3.0**  
 Last Updated: 2025-01-XX  
 Maintained By: Kartik Fulara

@@ -1,5 +1,5 @@
 ############################################################
-#              ELYTRA RACE CONFIGURATION v1.1.0
+#              ELYTRA RACE CONFIGURATION v1.3.0
 ############################################################
 
 race:
@@ -12,10 +12,13 @@ race:
   # Countdown step duration in ticks (10 ticks = 0.5 seconds)
   countdown-step-ticks: 10
   
-  # NEW v1.1.0: Required number of rockets to ready up
+  # Required number of rockets to ready up
   required-rockets: 64
-  
-  # NEW v1.1.0: Auto-finish time in seconds (race ends automatically)
+
+  # Maximum rocket boosts allowed during a race (anti-cheat)
+  max-rocket-uses: 3
+
+  # Auto-finish time in seconds (race ends automatically)
   auto-finish-time: 180
   
   # Maximum race time in minutes (for manual tracking)
@@ -23,7 +26,7 @@ race:
 
 
 ############################################################
-#            NEW v1.1.0: REGION IMPORT SETTINGS
+#            REGION IMPORT SETTINGS
 ############################################################
 region-import:
   # Enable automatic region import from WorldGuard
@@ -37,7 +40,7 @@ region-import:
 
 
 ############################################################
-#         NEW v1.1.0: ANTI-CHEAT BOUNDARY SYSTEM
+#         ANTI-CHEAT BOUNDARY SYSTEM
 ############################################################
 anti-cheat:
   # Distance in blocks from last checkpoint before warning
@@ -51,7 +54,7 @@ anti-cheat:
 
 
 ############################################################
-#          NEW v1.1.0: AUTO-SPECTATOR SETTINGS
+#          AUTO-SPECTATOR SETTINGS
 ############################################################
 spectator:
   # Automatically enable spectator mode after finishing
@@ -65,7 +68,7 @@ spectator:
 
 
 ############################################################
-#          NEW v1.1.0: STARTING PLATFORM SYSTEM
+#          STARTING PLATFORM SYSTEM
 ############################################################
 starting-platform:
   # Enable starting platform creation
@@ -82,7 +85,7 @@ starting-platform:
 
 
 ############################################################
-#           NEW v1.1.0: RING PREVIEW SYSTEM
+#           RING PREVIEW SYSTEM
 ############################################################
 ring-preview:
   # Enable ring preview particles for admins
@@ -116,7 +119,7 @@ regions: {}
 # Add rings manually:
 # /er setup addring <name>
 #
-# Or NEW v1.1.0: Import from WorldGuard
+# Or Import from WorldGuard
 # /er import rings
 ############################################################
 
@@ -159,16 +162,16 @@ messages:
   lobby-full: "&cThe lobby is full!"
   no-permission: "&cYou do not have permission for this command."
   
-  # === NEW v1.1.0: Validation Messages ===
+  # === Validation Messages ===
   insufficient-rockets: "&cYou need &e{required} &crockets to ready up! You have &e{current}&c."
   inventory-not-empty: "&cYour inventory must be empty (except armor) to race!"
   no-elytra: "&cYou must have an elytra equipped in your chestplate slot!"
   
-  # === NEW v1.1.0: Boundary Messages ===
+  # === Boundary Messages ===
   boundary-warning: "&c⚠ WARNING: You're going off-course! ({warnings}/3)"
   teleported-to-checkpoint: "&cYou went too far off-course! Teleported to last checkpoint."
   
-  # === NEW v1.1.0: Feature Messages ===
+  # === Feature Messages ===
   auto-finish: "&eTime's up! Race automatically finished."
   force-joined: "&aYou have been force-joined to the race by an admin!"
   test-mode-enabled: "&e⚠ Test mode enabled - your stats will not be saved."
@@ -196,20 +199,8 @@ performance:
 ############################################################
 # 
 # For full documentation, visit:
-# https://github.com/yourusername/ElytraRace/wiki
+# https://github.com/NindroidA/ElytraRace
 #
-# NEW v1.1.0 Features:
-# • Force Join System - /er forcejoin <player>
-# • Region Import - /er import rings
-# • Starting Platform - Auto-creates on countdown
-# • Test Mode - /er testmode (admin testing)
-# • Personal Bests - /er pb [player]
-# • Auto-Spectator - Automatic after finishing
-# • Ring Preview - /er preview (admin only)
-# • Boundary System - Prevents going off-course
-# • Auto-Finish Timer - Automatic race end
-# • Rocket Requirements - Configurable validation
-#
-# Report issues: https://github.com/yourusername/ElytraRace/issues
+# Report issues: https://github.com/NindroidA/ElytraRace/issues
 #
 ############################################################

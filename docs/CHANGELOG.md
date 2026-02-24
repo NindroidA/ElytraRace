@@ -237,7 +237,7 @@ setupStatsFile() → configManager → statsManager → raceManager ✅
 ### Known Issues
 
 - None currently reported
-- Please report any bugs at: https://github.com/Kartik-Fulara/ElytraRace/issues
+- Please report any bugs at: https://github.com/NindroidA/ElytraRace/issues
 
 ---
 
@@ -358,7 +358,7 @@ cp -r plugins/ElytraRace ~/backups/ElytraRace-backup
 ./stop.sh
 
 # 3. Download new version
-wget https://github.com/Kartik-Fulara/ElytraRace/releases/latest/download/ElytraRace.jar
+wget https://github.com/NindroidA/ElytraRace/releases/latest/download/ElytraRace.jar
 
 # 4. Replace JAR
 mv ElytraRace.jar plugins/
@@ -403,11 +403,11 @@ ElytraRace follows [Semantic Versioning](https://semver.org/):
 
 ## Links
 
-- **[Latest Release](https://github.com/Kartik-Fulara/ElytraRace/releases/latest)**
-- **[All Releases](https://github.com/Kartik-Fulara/ElytraRace/releases)**
-- **[Compare v1.0.0...v1.1.0](https://github.com/Kartik-Fulara/ElytraRace/compare/v1.0.0...v1.1.0)**
-- **[Milestones](https://github.com/Kartik-Fulara/ElytraRace/milestones)**
-- **[Report Issues](https://github.com/Kartik-Fulara/ElytraRace/issues)**
+- **[Latest Release](https://github.com/NindroidA/ElytraRace/releases/latest)**
+- **[All Releases](https://github.com/NindroidA/ElytraRace/releases)**
+- **[Compare v1.0.0...v1.1.0](https://github.com/NindroidA/ElytraRace/compare/v1.0.0...v1.1.0)**
+- **[Milestones](https://github.com/NindroidA/ElytraRace/milestones)**
+- **[Report Issues](https://github.com/NindroidA/ElytraRace/issues)**
 
 ---
 
@@ -424,10 +424,10 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for:
 ## Questions?
 
 - 📖 **Documentation**: [docs/](docs/)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/Kartik-Fulara/ElytraRace/discussions)
-- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/Kartik-Fulara/ElytraRace/issues)
-- 📧 **Email**: kartikfulara2003@gmail.com
-- 💬 **Discord**: [Join Server](https://discord.gg/YOUR_INVITE)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/NindroidA/ElytraRace/discussions)
+- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/NindroidA/ElytraRace/issues)
+- 📧 **Email**: https://github.com/NindroidA/ElytraRace/issues
+- 💬 **Discord**: [Join Server](https://github.com/NindroidA/ElytraRace/discussions)
 
 ---
 
@@ -448,5 +448,5 @@ Thanks to everyone who:
 Last Updated: 2025-01-XX  
 Maintained By: Kartik Fulara
 
-[1.1.0]: https://github.com/Kartik-Fulara/ElytraRace/releases/tag/v1.1.0
-[1.0.0]: https://github.com/Kartik-Fulara/ElytraRace/releases/tag/v1.0.0
+[1.1.0]: https://github.com/NindroidA/ElytraRace/releases/tag/v1.1.0
+[1.0.0]: https://github.com/NindroidA/ElytraRace/releases/tag/v1.0.0

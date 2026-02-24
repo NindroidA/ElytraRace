@@ -156,7 +156,7 @@ This is the initial release - no upgrade path needed.
 
 ### General Upgrade Steps
 
-1. Download new version from [Releases](https://github.com/Kartik-Fulara/ElytraRace/releases)
+1. Download new version from [Releases](https://github.com/NindroidA/ElytraRace/releases)
 2. Stop your server
 3. Backup `plugins/ElytraRace/` folder
 4. Replace old JAR with new version
@@ -176,9 +176,9 @@ None yet - this is the initial release.
 
 ## Links
 
-- [1.0.0 Release](https://github.com/Kartik-Fulara/ElytraRace/releases/tag/v1.0.0)
-- [Unreleased Changes](https://github.com/Kartik-Fulara/ElytraRace/compare/v1.0.0...HEAD)
-- [All Releases](https://github.com/Kartik-Fulara/ElytraRace/releases)
+- [1.0.0 Release](https://github.com/NindroidA/ElytraRace/releases/tag/v1.0.0)
+- [Unreleased Changes](https://github.com/NindroidA/ElytraRace/compare/v1.0.0...HEAD)
+- [All Releases](https://github.com/NindroidA/ElytraRace/releases)
 
 ---
 

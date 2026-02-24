@@ -37,7 +37,7 @@ Thank you for your interest in contributing to ElytraRace! This guide will help 
 
 ### Enforcement
 
-Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to **kartikfulara2003@gmail.com**. All complaints will be reviewed and investigated promptly and fairly.
+Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to **https://github.com/NindroidA/ElytraRace/issues**. All complaints will be reviewed and investigated promptly and fairly.
 
 ---
 
@@ -45,8 +45,8 @@ Instances of abusive, harassing, or otherwise unacceptable behavior may be repor
 
 ### Ways to Contribute
 
-1. **Report Bugs** - [Open an issue](https://github.com/Kartik-Fulara/ElytraRace/issues/new?template=bug_report.md)
-2. **Suggest Features** - [Start a discussion](https://github.com/Kartik-Fulara/ElytraRace/discussions/new?category=ideas)
+1. **Report Bugs** - [Open an issue](https://github.com/NindroidA/ElytraRace/issues/new?template=bug_report.md)
+2. **Suggest Features** - [Start a discussion](https://github.com/NindroidA/ElytraRace/discussions/new?category=ideas)
 3. **Improve Documentation** - Submit PRs for typos, clarity, examples
 4. **Write Code** - Fix bugs or implement features
 5. **Test** - Help test new features and report issues
@@ -101,11 +101,11 @@ new-feature          # Missing issue number
 ```bash
 # Fork the repository on GitHub
 # Then clone your fork
-git clone https://github.com/YOUR_USERNAME/ElytraRace.git
+git clone https://github.com/NindroidA/ElytraRace.git
 cd ElytraRace
 
 # Add upstream remote
-git remote add upstream https://github.com/Kartik-Fulara/ElytraRace.git
+git remote add upstream https://github.com/NindroidA/ElytraRace.git
 ```
 
 ---
@@ -498,10 +498,10 @@ Add to all new files:
 
 | Question Type | Platform |
 |--------------|----------|
-| General questions | [Discussions](https://github.com/Kartik-Fulara/ElytraRace/discussions) |
-| Bug reports | [Issues](https://github.com/Kartik-Fulara/ElytraRace/issues) |
-| Feature requests | [Discussions](https://github.com/Kartik-Fulara/ElytraRace/discussions/categories/ideas) |
-| Security issues | kartikfulara2003@gmail.com |
+| General questions | [Discussions](https://github.com/NindroidA/ElytraRace/discussions) |
+| Bug reports | [Issues](https://github.com/NindroidA/ElytraRace/issues) |
+| Feature requests | [Discussions](https://github.com/NindroidA/ElytraRace/discussions/categories/ideas) |
+| Security issues | https://github.com/NindroidA/ElytraRace/issues |
 | Code reviews | Pull Request comments |
 
 ### Response Times
@@ -535,10 +535,10 @@ Special recognition for:
 
 ## 📞 Contact
 
-- **Discord**: [Join server](https://discord.gg/YOUR_INVITE)
-- **Email**: kartikfulara2003@gmail.com
+- **Discord**: [Join server](https://github.com/NindroidA/ElytraRace/discussions)
+- **Email**: https://github.com/NindroidA/ElytraRace/issues
 - **GitHub**: [@Kartik-Fulara](https://github.com/Kartik-Fulara)
-- **Issues**: [GitHub Issues](https://github.com/Kartik-Fulara/ElytraRace/issues)
+- **Issues**: [GitHub Issues](https://github.com/NindroidA/ElytraRace/issues)
 
 ---
 

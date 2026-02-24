@@ -1,14 +1,14 @@
 # Default owners for all files
-*       @Kartik-Fulara
+*       @NindroidA @Kartik-Fulara
 
 # Critical infrastructure files
-pom.xml @Kartik-Fulara
-.github/workflows/* @Kartik-Fulara
+pom.xml @NindroidA @Kartik-Fulara
+.github/workflows/* @NindroidA
 
 # Core plugin code
-src/main/java/com/elytrarace/* @Kartik-Fulara
-src/main/java/com/elytrarace/ElytraRacePlugin.java @Kartik-Fulara
+src/main/java/com/elytrarace/* @NindroidA @Kartik-Fulara
+src/main/java/com/elytrarace/ElytraRacePlugin.java @NindroidA @Kartik-Fulara
 
 # Important managers
-src/main/java/com/elytrarace/managers/RaceManager.java @Kartik-Fulara
-src/main/java/com/elytrarace/managers/ConfigManager.java @Kartik-Fulara
+src/main/java/com/elytrarace/managers/RaceManager.java @NindroidA @Kartik-Fulara
+src/main/java/com/elytrarace/managers/ConfigManager.java @NindroidA @Kartik-Fulara

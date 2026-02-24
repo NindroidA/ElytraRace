@@ -138,9 +138,9 @@ License: MIT
 Platform: Paper 1.21.4+
   
 Links:
-  Source: https://github.com/Kartik-Fulara/ElytraRace
-  Issues: https://github.com/Kartik-Fulara/ElytraRace/issues
-  Documentation: https://github.com/Kartik-Fulara/ElytraRace/docs
+  Source: https://github.com/NindroidA/ElytraRace
+  Issues: https://github.com/NindroidA/ElytraRace/issues
+  Documentation: https://github.com/NindroidA/ElytraRace/docs
 ```
 
 ---

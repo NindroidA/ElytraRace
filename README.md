@@ -6,11 +6,10 @@
 
 **A competitive elytra racing plugin for Minecraft Paper servers**
 
-[![Build Status](https://img.shields.io/github/actions/workflow/status/Kartik-Fulara/ElytraRace/build.yml?branch=main)](https://github.com/Kartik-Fulara/ElytraRace/actions)
-[![License](https://img.shields.io/github/license/Kartik-Fulara/ElytraRace)](LICENSE)
-[![Version](https://img.shields.io/github/v/release/Kartik-Fulara/ElytraRace)](https://github.com/Kartik-Fulara/ElytraRace/releases)
-[![Issues](https://img.shields.io/github/issues/Kartik-Fulara/ElytraRace)](https://github.com/Kartik-Fulara/ElytraRace/issues)
-[![Discord](https://img.shields.io/discord/YOUR_DISCORD_ID?color=7289da&label=discord)](https://discord.gg/YOUR_INVITE)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/NindroidA/ElytraRace/build.yml?branch=main)](https://github.com/NindroidA/ElytraRace/actions)
+[![License](https://img.shields.io/github/license/NindroidA/ElytraRace)](LICENSE)
+[![Version](https://img.shields.io/github/v/release/NindroidA/ElytraRace)](https://github.com/NindroidA/ElytraRace/releases)
+[![Issues](https://img.shields.io/github/issues/NindroidA/ElytraRace)](https://github.com/NindroidA/ElytraRace/issues)
 
 [Features](#-features) • [Installation](#-quick-start) • [Commands](#-commands) • [Documentation](#-documentation) • [Contributing](#-contributing)
 
@@ -41,17 +40,19 @@ ElytraRace transforms your Minecraft server into a competitive racing arena. Pla
 - **Real-Time Timer** - Per-player and global race timing
 - **Anti-Cheat Protection** - Prevents skipping, rocket abuse, and exploits
 
-### NEW in v1.1.0
-- 🚀 **Force-Join System** - Admins can teleport players to races
-- 🗺️ **Region Import** - Auto-import WorldGuard regions as race rings
-- 🎯 **Starting Platform** - Dramatic countdown with disappearing platforms
-- 🧪 **Test Mode** - Admin testing without affecting statistics
-- 🏆 **Personal Best Tracking** - Individual record keeping with rankings
-- 👻 **Auto-Spectator** - Watch other racers after finishing
-- ✨ **Ring Preview** - Visual particle effects for course design
-- 🛡️ **Boundary System** - Prevents players from going off-course
-- ⏱️ **Auto-Finish Timer** - Races end automatically after time limit
-- 🎒 **Rocket Requirements** - Configurable validation before race start
+### NEW in v1.3.0
+- **Ready Command Fix** - Elytra no longer incorrectly triggers "inventory must be empty"
+- **Rocket Anti-Cheat Fix** - Firework detection now works on Paper 1.21.4+
+- **Configurable Rocket Limits** - `max-rocket-uses` setting in config.yml
+- **DNF Stats Tracking** - Did-not-finish races now count in player stats
+- **Performance Optimizations** - Cached region bounds, optimized ring checks
+- **Accurate Rules Display** - Correctly shows ready-up vs in-race rocket limits
+
+### Features (v1.1.0+)
+- Force-Join System, Region Import, Starting Platform
+- Test Mode, Personal Best Tracking, Auto-Spectator
+- Ring Preview, Boundary System, Auto-Finish Timer
+- Rocket Requirements, Ring Setup Commands
 
 ### Statistics & Leaderboards
 - **Personal Stats**: Wins, total races, best/average times, win rates
@@ -88,7 +89,7 @@ ElytraRace transforms your Minecraft server into a competitive racing arena. Pla
 1. **Download** the latest release
    ```bash
    # From GitHub Releases
-   wget https://github.com/Kartik-Fulara/ElytraRace/releases/latest/download/ElytraRace.jar
+   wget https://github.com/NindroidA/ElytraRace/releases/latest/download/ElytraRace.jar
    ```
 
 2. **Install** the plugin
@@ -156,6 +157,8 @@ See the [Installation Guide](docs/INSTALLATION.md) for detailed instructions.
 | `/er setup lobby` | Set lobby location | `race.admin` |
 | `/er setup start` | Define start region | `race.admin` |
 | `/er setup finish` | Define finish region | `race.admin` |
+| `/er setup addring <name>` | Add ring at current location | `race.admin` |
+| `/er setup removering <name>` | Remove a configured ring | `race.admin` |
 | `/er start` | Force start race | `race.admin` |
 | `/er reset` | Reset active race | `race.admin` |
 
@@ -172,6 +175,7 @@ race:
   min-players: 2
   max-players: 5
   required-rockets: 64
+  max-rocket-uses: 3
   auto-finish-time: 180
 
 region-import:
@@ -249,13 +253,13 @@ See [Configuration Guide](docs/CONFIGURATION.md) for all options.
 
 ```bash
 # Clone the repository
-git clone https://github.com/Kartik-Fulara/ElytraRace.git
+git clone https://github.com/NindroidA/ElytraRace.git
 cd ElytraRace
 
 # Build with Maven
 mvn clean package
 
-# Output: target/ElytraRace-1.1.0.jar
+# Output: target/ElytraRace-1.3.0.jar
 ```
 
 ### Requirements for Building
@@ -292,17 +296,15 @@ test/      - Test additions
 
 ## 🐛 Bug Reports & Feature Requests
 
-- **Bug Reports**: [Open an Issue](https://github.com/Kartik-Fulara/ElytraRace/issues/new?template=bug_report.md)
-- **Feature Requests**: [Start a Discussion](https://github.com/Kartik-Fulara/ElytraRace/discussions/new?category=ideas)
-- **Questions**: [GitHub Discussions](https://github.com/Kartik-Fulara/ElytraRace/discussions)
+- **Bug Reports**: [Open an Issue](https://github.com/NindroidA/ElytraRace/issues/new?template=bug_report.md)
+- **Feature Requests**: [Start a Discussion](https://github.com/NindroidA/ElytraRace/discussions/new?category=ideas)
+- **Questions**: [GitHub Discussions](https://github.com/NindroidA/ElytraRace/discussions)
 
 ---
 
 ## 🔒 Security
 
-Found a security vulnerability? Please report it privately to **kartikfulara2003@gmail.com** instead of opening a public issue.
-
-See [SECURITY.md](SECURITY.md) for our security policy.
+Found a security vulnerability? Please [open an issue](https://github.com/NindroidA/ElytraRace/issues) with the `security` label.
 
 ---
 
@@ -310,9 +312,9 @@ See [SECURITY.md](SECURITY.md) for our security policy.
 
 <div align="center">
 
-![GitHub stars](https://img.shields.io/github/stars/Kartik-Fulara/ElytraRace?style=social)
-![GitHub forks](https://img.shields.io/github/forks/Kartik-Fulara/ElytraRace?style=social)
-![GitHub watchers](https://img.shields.io/github/watchers/Kartik-Fulara/ElytraRace?style=social)
+![GitHub stars](https://img.shields.io/github/stars/NindroidA/ElytraRace?style=social)
+![GitHub forks](https://img.shields.io/github/forks/NindroidA/ElytraRace?style=social)
+![GitHub watchers](https://img.shields.io/github/watchers/NindroidA/ElytraRace?style=social)
 
 </div>
 
@@ -334,8 +336,8 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 ## 🙏 Acknowledgments
 
 ### Contributors
-- **Kartik Fulara** - *Creator & Lead Developer* - [@Kartik-Fulara](https://github.com/Kartik-Fulara)
-- See full list: [Contributors](https://github.com/Kartik-Fulara/ElytraRace/graphs/contributors)
+- **Kartik Fulara** - *Original Creator* - [@Kartik-Fulara](https://github.com/Kartik-Fulara)
+- **NindroidA** - *Maintainer & Bug Fixes* - [@NindroidA](https://github.com/NindroidA)
 
 ### Dependencies
 - [Paper](https://papermc.io/) - High-performance Minecraft server
@@ -352,31 +354,19 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ## 📞 Support & Community
 
-- 💬 **Discord**: [Join our server](https://discord.gg/YOUR_INVITE)
-- 📖 **Wiki**: [Documentation](https://github.com/Kartik-Fulara/ElytraRace/wiki)
-- 🐛 **Issues**: [Report bugs](https://github.com/Kartik-Fulara/ElytraRace/issues)
-- 💡 **Discussions**: [Feature requests](https://github.com/Kartik-Fulara/ElytraRace/discussions)
-- 📧 **Email**: kartikfulara2003@gmail.com
+- 🐛 **Issues**: [Report bugs](https://github.com/NindroidA/ElytraRace/issues)
+- 💡 **Discussions**: [Feature requests](https://github.com/NindroidA/ElytraRace/discussions)
 
 ---
 
 ## 🗺️ Roadmap
 
-### v1.2.0 (Planned)
+### Future Plans
 - [ ] Team racing mode
 - [ ] Economy integration (Vault)
-- [ ] Custom particle effects
-- [ ] Race replays
-- [ ] PlaceholderAPI support
-
-### v1.3.0 (Future)
 - [ ] Multiple race tracks
-- [ ] Tournament system
-- [ ] Custom cosmetics
-- [ ] Advanced statistics dashboard
+- [ ] PlaceholderAPI support
 - [ ] MySQL database support
-
-See [Milestones](https://github.com/Kartik-Fulara/ElytraRace/milestones) for detailed roadmap.
 
 ---
 
