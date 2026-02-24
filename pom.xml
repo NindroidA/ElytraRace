@@ -7,7 +7,7 @@
 
     <groupId>com.elytrarace</groupId>
     <artifactId>ElytraRace</artifactId>
-    <version>1.4.2</version>
+    <version>1.4.3</version>
     <packaging>jar</packaging>
     <name>ElytraRace</name>
     <description>Minecraft elytra racing plugin with stats and leaderboards</description>

@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.3] - 2026-02-23
+
+### Ring Particles & In-Race Visibility
+
+### Added
+- **In-race ring particles** — Each racer sees END_ROD particles around their next ring during the race
+- **Orientation-aware rendering** — Particles draw circles matching ring orientation (VERTICAL_NS/EW/HORIZONTAL)
+- **Distance-based rendering** — Particles only visible within 100 blocks for performance
+- **Per-player next ring tracking** — Each racer sees only their own next ring highlighted
+- **`getNextRingForPlayer()` API** — Exposes next ring for external use (navigation indicator)
+
+### Changed
+- Ring particle task auto-cancels when race ends
+- Particle task cleanup added to `endRace()` and `shutdown()`
+
+---
+
 ## [1.4.2] - 2026-02-23
 
 ### Sound Effects System

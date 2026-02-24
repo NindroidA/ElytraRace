@@ -13,15 +13,19 @@ import com.elytrarace.ElytraRacePlugin;
 import com.elytrarace.data.PlayerRaceData;
 import com.elytrarace.utils.SoundManager;
 import com.elytrarace.utils.TimerHelper;
+import com.elytrarace.data.RingDefinition;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.*;
+import java.util.TreeMap;
 
 /**
  * Central race manager with ALL 10 NEW FEATURES implemented
@@ -51,6 +55,7 @@ public class RaceManager {
     private BukkitTask countdownTask;
     private BukkitTask raceTimerTask;
     private BukkitTask autoFinishTask;
+    private BukkitTask ringParticleTask;
 
     private long raceStartMillis;
     private long globalRaceSeconds;
@@ -337,7 +342,10 @@ public class RaceManager {
             }
         }.runTaskTimer(plugin, 0L, 20L);
 
-        // NEW: Feature 10 - Auto-finish timer
+        // In-race ring particles: highlight each racer's next ring
+        startRingParticleTask();
+
+        // Auto-finish timer
         int autoFinishTime = cfg.getAutoFinishTime();
         autoFinishTask = new BukkitRunnable() {
             @Override
@@ -346,6 +354,93 @@ public class RaceManager {
                 endRace();
             }
         }.runTaskLater(plugin, autoFinishTime * 20L);
+    }
+
+    /**
+     * Start a repeating task that draws particles at each racer's next ring.
+     */
+    private void startRingParticleTask() {
+        if (ringParticleTask != null) return;
+
+        var rings = cfg.getRingDefinitions();
+        // Build order→definition lookup
+        Map<Integer, RingDefinition> ringsByOrder = new TreeMap<>();
+        for (RingDefinition rd : rings.values()) {
+            ringsByOrder.put(rd.getOrder(), rd);
+        }
+
+        ringParticleTask = new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (!racing) {
+                    cancel();
+                    ringParticleTask = null;
+                    return;
+                }
+
+                int particleCount = 24;
+
+                for (Map.Entry<UUID, PlayerRaceData> entry : racePlayers.entrySet()) {
+                    PlayerRaceData data = entry.getValue();
+                    if (data.isFinished()) continue;
+
+                    Player p = Bukkit.getPlayer(entry.getKey());
+                    if (p == null) continue;
+
+                    RingDefinition nextRing = ringsByOrder.get(data.getExpectedNextOrder());
+                    if (nextRing == null) continue;
+
+                    Location center = nextRing.getCenter();
+                    if (!p.getWorld().equals(center.getWorld())) continue;
+
+                    // Only render if within 100 blocks
+                    if (p.getLocation().distanceSquared(center) > 10000) continue;
+
+                    double r = nextRing.getVisualRadius();
+
+                    for (int i = 0; i < particleCount; i++) {
+                        double angle = 2 * Math.PI * i / particleCount;
+                        double px, py, pz;
+
+                        switch (nextRing.getOrientation()) {
+                            case VERTICAL_NS -> {
+                                px = center.getX() + r * Math.cos(angle);
+                                py = center.getY() + r * Math.sin(angle);
+                                pz = center.getZ();
+                            }
+                            case VERTICAL_EW -> {
+                                px = center.getX();
+                                py = center.getY() + r * Math.sin(angle);
+                                pz = center.getZ() + r * Math.cos(angle);
+                            }
+                            default -> {
+                                px = center.getX() + r * Math.cos(angle);
+                                py = center.getY();
+                                pz = center.getZ() + r * Math.sin(angle);
+                            }
+                        }
+
+                        Location particleLoc = new Location(center.getWorld(), px, py, pz);
+                        p.spawnParticle(Particle.END_ROD, particleLoc, 1, 0, 0, 0, 0);
+                    }
+                }
+            }
+        }.runTaskTimer(plugin, 0L, 10L); // Every 0.5 seconds
+    }
+
+    /**
+     * Get the next ring definition for a given player.
+     */
+    public RingDefinition getNextRingForPlayer(UUID uuid) {
+        PlayerRaceData data = racePlayers.get(uuid);
+        if (data == null) return null;
+        var rings = cfg.getRingDefinitions();
+        for (RingDefinition rd : rings.values()) {
+            if (rd.getOrder() == data.getExpectedNextOrder()) {
+                return rd;
+            }
+        }
+        return null;
     }
 
     public void shutdown() {
@@ -360,6 +455,10 @@ public class RaceManager {
         if (autoFinishTask != null) {
             autoFinishTask.cancel();
             autoFinishTask = null;
+        }
+        if (ringParticleTask != null) {
+            ringParticleTask.cancel();
+            ringParticleTask = null;
         }
         platformManager.clearPlatform();
         readyPlayers.clear();
@@ -528,6 +627,10 @@ public class RaceManager {
         if (autoFinishTask != null) {
             autoFinishTask.cancel();
             autoFinishTask = null;
+        }
+        if (ringParticleTask != null) {
+            ringParticleTask.cancel();
+            ringParticleTask = null;
         }
 
         List<Map.Entry<UUID, PlayerRaceData>> results = new ArrayList<>(racePlayers.entrySet());
