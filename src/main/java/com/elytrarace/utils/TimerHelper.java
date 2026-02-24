@@ -19,6 +19,7 @@ import org.bukkit.entity.Player;
 
 import java.util.UUID;
 
+
 /**
  * Timer helper — shows action bar timer and center countdown titles.
  * - ActionBar updates every 1s (you selected A)
@@ -27,29 +28,9 @@ import java.util.UUID;
 public class TimerHelper {
 
     private final ElytraRacePlugin plugin;
-    private final boolean timerAvailable;
 
     public TimerHelper(ElytraRacePlugin plugin) {
         this.plugin = plugin;
-        this.timerAvailable = plugin.getServer().getPluginManager().getPlugin("VoiidCountdownTimer") != null;
-    }
-
-    public boolean isTimerAvailable() {
-        return timerAvailable;
-    }
-
-    public void showTimer(Player player, long seconds) {
-        String timeStr = formatTime(seconds);
-        player.sendActionBar("§6⏱ Race Time: §e" + timeStr);
-    }
-
-    public void showTimerToAll(long seconds) {
-        for (UUID uuid : plugin.getRaceManager().getRacePlayers().keySet()) {
-            Player player = Bukkit.getPlayer(uuid);
-            if (player != null) {
-                showTimer(player, seconds);
-            }
-        }
     }
 
     public String formatTime(long seconds) {

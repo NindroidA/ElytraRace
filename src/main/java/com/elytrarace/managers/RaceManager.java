@@ -52,6 +52,9 @@ public class RaceManager {
     // NEW: Feature 5 - Test mode tracking
     private final Set<UUID> testModePlayers = new LinkedHashSet<>();
 
+    // v1.5.0: Store original game modes for spectator restore
+    private final Map<UUID, GameMode> originalGameModes = new HashMap<>();
+
     private BukkitTask countdownTask;
     private BukkitTask raceTimerTask;
     private BukkitTask autoFinishTask;
@@ -60,6 +63,7 @@ public class RaceManager {
     private long raceStartMillis;
     private long globalRaceSeconds;
     private boolean racing = false;
+    private boolean raceEnabled = true;
 
     public RaceManager(ElytraRacePlugin plugin) {
         this.plugin = plugin;
@@ -69,24 +73,48 @@ public class RaceManager {
         this.platformManager = new StartingPlatformManager(plugin);
         this.personalBestManager = new PersonalBestManager(plugin);
         this.soundManager = new SoundManager();
+        this.raceEnabled = cfg.isRaceEnabled();
     }
 
-    // NEW: Feature 1 - Force join
+    // v1.5.0: Race toggle system
+    public boolean isRaceEnabled() {
+        return raceEnabled;
+    }
+
+    public void toggleRace() {
+        raceEnabled = !raceEnabled;
+        cfg.setRaceEnabled(raceEnabled);
+        String status = raceEnabled ? "§aENABLED" : "§cDISABLED";
+        Bukkit.broadcastMessage(cfg.getPrefix() + "§eRacing is now " + status + "§e!");
+    }
+
+    // v1.5.0: Force join with proper lobby registration
     public boolean forceJoinPlayer(Player player) {
         if (startLobbyPlayers.size() >= cfg.getMaxPlayers()) {
             return false;
         }
-        
+
         // Teleport to start region
         org.bukkit.Location startCenter = regionManager.getRegionCenter(RegionManager.RegionType.START);
         if (startCenter != null) {
             player.teleport(startCenter);
             player.sendMessage(cfg.getPrefix() + cfg.getMessage("force-joined"));
-            showJoinRules(player);
+            // Register in lobby (bypasses racing/disabled checks)
+            forcePlayerEnteredStart(player);
             return true;
         }
-        
+
         return false;
+    }
+
+    // v1.5.0: Internal method that bypasses racing/disabled checks for force-joins
+    private void forcePlayerEnteredStart(Player player) {
+        startLobbyPlayers.add(player.getUniqueId());
+        racePlayers.putIfAbsent(player.getUniqueId(), new PlayerRaceData(player.getUniqueId(), cfg.getMaxRocketUses()));
+        originalGameModes.putIfAbsent(player.getUniqueId(), player.getGameMode());
+        showJoinRules(player);
+        broadcastToStart(cfg.getPrefix() + "§e" + player.getName() + " §aentered the start area (" +
+            startLobbyPlayers.size() + "/" + cfg.getMaxPlayers() + ")");
     }
 
     // NEW: Feature 1 - Show rules on join
@@ -104,6 +132,12 @@ public class RaceManager {
     }
 
     public void playerEnteredStart(Player player) {
+        // v1.5.0: Block entry when racing is disabled
+        if (!raceEnabled) {
+            player.sendMessage(cfg.getPrefix() + "§cRacing is currently disabled.");
+            return;
+        }
+
         // Mid-race lockout: prevent joining during an active race
         if (racing) {
             player.sendMessage(cfg.getPrefix() + "§cA race is already in progress! Wait for it to finish.");
@@ -112,6 +146,9 @@ public class RaceManager {
 
         startLobbyPlayers.add(player.getUniqueId());
         racePlayers.putIfAbsent(player.getUniqueId(), new PlayerRaceData(player.getUniqueId(), cfg.getMaxRocketUses()));
+
+        // v1.5.0: Store original game mode for later restore
+        originalGameModes.putIfAbsent(player.getUniqueId(), player.getGameMode());
 
         // Show rules on enter
         showJoinRules(player);
@@ -141,6 +178,11 @@ public class RaceManager {
     // NEW: Feature 2 - Rocket and inventory validation
     public void setReady(Player player) {
         UUID id = player.getUniqueId();
+
+        if (!raceEnabled) {
+            player.sendMessage(cfg.getPrefix() + "§cRacing is currently disabled.");
+            return;
+        }
 
         if (!startLobbyPlayers.contains(id)) {
             player.sendMessage(cfg.getPrefix() + "§cYou must stand in the start area to ready up.");
@@ -190,19 +232,20 @@ public class RaceManager {
         }
 
         // Use getStorageContents() to exclude armor slots (fixes elytra being counted as an item)
-        int itemCount = 0;
+        int nonRocketStacks = 0;
         int rocketCount = 0;
         for (ItemStack item : player.getInventory().getStorageContents()) {
             if (item != null && item.getType() != Material.AIR) {
-                itemCount++;
                 if (item.getType() == Material.FIREWORK_ROCKET) {
                     rocketCount += item.getAmount();
+                } else {
+                    nonRocketStacks++;
                 }
             }
         }
 
         // Inventory must only contain rockets
-        if (itemCount > 0 && rocketCount == 0) {
+        if (nonRocketStacks > 0) {
             player.sendMessage(cfg.getPrefix() + cfg.getMessage("inventory-not-empty"));
             return false;
         }
@@ -220,35 +263,26 @@ public class RaceManager {
     }
 
     // NEW: Feature 5 - Test mode
+    // v1.5.0: Test mode no longer manipulates racing flag
     public void enableTestMode(Player player) {
         testModePlayers.add(player.getUniqueId());
         racePlayers.putIfAbsent(player.getUniqueId(), new PlayerRaceData(player.getUniqueId(), cfg.getMaxRocketUses()));
-        
+
         PlayerRaceData data = racePlayers.get(player.getUniqueId());
         data.startRace();
-        
+
         player.sendMessage(cfg.getPrefix() + cfg.getMessage("test-mode-enabled"));
         player.sendMessage(cfg.getPrefix() + "§7Fly through the rings to test the course!");
-        
-        // Start timer for test mode
-        if (!racing) {
-            racing = true;
-            raceStartMillis = System.currentTimeMillis();
-        }
     }
 
     public boolean isInTestMode(UUID uuid) {
         return testModePlayers.contains(uuid);
     }
 
+    // v1.5.0: Test mode no longer manipulates racing flag
     public void disableTestMode(Player player) {
         testModePlayers.remove(player.getUniqueId());
         racePlayers.remove(player.getUniqueId());
-        
-        if (testModePlayers.isEmpty() && startLobbyPlayers.isEmpty()) {
-            racing = false;
-        }
-        
         player.sendMessage(cfg.getPrefix() + "§aTest mode ended.");
     }
 
@@ -256,6 +290,7 @@ public class RaceManager {
      * Force start race (admin command)
      */
     public void forceStart() {
+        if (!raceEnabled) return;
         if (racing) return;
         if (startLobbyPlayers.isEmpty()) {
             return;
@@ -330,7 +365,6 @@ public class RaceManager {
             @Override
             public void run() {
                 globalRaceSeconds = (System.currentTimeMillis() - raceStartMillis) / 1000;
-                timerHelper.showTimerToAll(globalRaceSeconds);
 
                 for (UUID uuid : racePlayers.keySet()) {
                     Player p = Bukkit.getPlayer(uuid);
@@ -468,6 +502,7 @@ public class RaceManager {
         finishedPlayers.clear();
         boundaryWarnings.clear();
         lastCheckpoints.clear();
+        originalGameModes.clear();
         racing = false;
     }
 
@@ -509,22 +544,27 @@ public class RaceManager {
         }
     }
 
-    // NEW: Feature 9 - Boundary check
+    // v1.5.0: Fixed boundary check — measures from NEXT expected ring
     public void checkPlayerBoundary(Player player) {
         if (!racing) return;
-        if (isInTestMode(player.getUniqueId())) return; // No boundary in test mode
-        
+        if (isInTestMode(player.getUniqueId())) return;
+
         PlayerRaceData data = racePlayers.get(player.getUniqueId());
         if (data == null || data.isFinished()) return;
 
-        String lastRing = lastCheckpoints.get(player.getUniqueId());
-        if (lastRing == null) return;
+        // Determine target location: next ring, or finish region if all rings passed
+        Location targetLoc = null;
+        RingDefinition nextRing = getNextRingForPlayer(player.getUniqueId());
+        if (nextRing != null) {
+            targetLoc = nextRing.getCenter();
+        } else {
+            // All rings passed — use finish region center
+            targetLoc = regionManager.getRegionCenter(RegionManager.RegionType.FINISH);
+        }
+        if (targetLoc == null) return;
+        if (!player.getWorld().equals(targetLoc.getWorld())) return;
 
-        var ringDef = cfg.getRingDefinitions().get(lastRing);
-        if (ringDef == null) return;
-        org.bukkit.Location ringLoc = ringDef.getCenter();
-
-        double distance = player.getLocation().distance(ringLoc);
+        double distance = player.getLocation().distance(targetLoc);
         int maxDistance = cfg.getBoundaryDistance();
 
         if (distance > maxDistance) {
@@ -535,7 +575,19 @@ public class RaceManager {
                 .replace("{warnings}", String.valueOf(warnings)));
 
             if (warnings >= cfg.getWarningsBeforeTeleport() && cfg.isTeleportOnExceed()) {
-                player.teleport(ringLoc);
+                // Teleport to last passed ring, or start if none passed
+                String lastRing = lastCheckpoints.get(player.getUniqueId());
+                Location teleportTo = null;
+                if (lastRing != null) {
+                    var ringDef = cfg.getRingDefinitions().get(lastRing);
+                    if (ringDef != null) teleportTo = ringDef.getCenter();
+                }
+                if (teleportTo == null) {
+                    teleportTo = regionManager.getRegionCenter(RegionManager.RegionType.START);
+                }
+                if (teleportTo != null) {
+                    player.teleport(teleportTo);
+                }
                 player.sendMessage(cfg.getPrefix() + cfg.getMessage("teleported-to-checkpoint"));
                 boundaryWarnings.put(player.getUniqueId(), 0);
             }
@@ -676,17 +728,27 @@ public class RaceManager {
         }
         broadcastToAll("§6§l========================");
 
-        // NEW: Feature 7 - Return spectators to lobby
+        // v1.5.0: Return ALL race players to lobby and restore original game mode
         if (cfg.isReturnToLobby()) {
             org.bukkit.Location lobbyLoc = cfg.getLobbyLocation();
             if (lobbyLoc != null) {
-                for (UUID uuid : finishedPlayers) {
+                for (UUID uuid : racePlayers.keySet()) {
                     Player p = Bukkit.getPlayer(uuid);
-                    if (p != null && p.getGameMode() == GameMode.SPECTATOR) {
-                        p.setGameMode(GameMode.ADVENTURE);
+                    if (p != null) {
+                        GameMode original = originalGameModes.getOrDefault(uuid, GameMode.ADVENTURE);
+                        p.setGameMode(original);
                         p.teleport(lobbyLoc);
                         p.sendMessage(cfg.getPrefix() + "§aReturned to lobby.");
                     }
+                }
+            }
+        } else {
+            // Even if not returning to lobby, restore game modes
+            for (UUID uuid : racePlayers.keySet()) {
+                Player p = Bukkit.getPlayer(uuid);
+                if (p != null && p.getGameMode() == GameMode.SPECTATOR) {
+                    GameMode original = originalGameModes.getOrDefault(uuid, GameMode.ADVENTURE);
+                    p.setGameMode(original);
                 }
             }
         }
@@ -697,6 +759,7 @@ public class RaceManager {
         finishedPlayers.clear();
         boundaryWarnings.clear();
         lastCheckpoints.clear();
+        originalGameModes.clear();
         platformManager.clearPlatform();
     }
 

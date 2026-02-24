@@ -106,8 +106,9 @@ public class RaceListener implements Listener {
             checkRegions(player, uuid);
         }
 
-        // OPTIMIZATION 3: Only check rings if player is actively racing
-        if (raceManager.isRacing() && raceManager.getRacePlayers().containsKey(uuid)) {
+        // OPTIMIZATION 3: Check rings if player is racing OR in test mode
+        if ((raceManager.isRacing() || raceManager.isInTestMode(uuid))
+                && raceManager.getRacePlayers().containsKey(uuid)) {
             checkRings(player, uuid, to);
         }
         

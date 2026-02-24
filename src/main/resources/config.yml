@@ -1,8 +1,11 @@
 ############################################################
-#              ELYTRA RACE CONFIGURATION v1.4.0
+#              ELYTRA RACE CONFIGURATION v1.5.0
 ############################################################
 
 race:
+  # Enable/disable racing (admin toggle with /er toggle)
+  enabled: true
+
   # Minimum players required in the START region to begin race
   min-players: 2
 
@@ -43,8 +46,8 @@ region-import:
 #         ANTI-CHEAT BOUNDARY SYSTEM
 ############################################################
 anti-cheat:
-  # Distance in blocks from last checkpoint before warning
-  boundary-distance: 50
+  # Distance in blocks from next ring before warning
+  boundary-distance: 150
   
   # Teleport player back after exceeding boundary
   teleport-on-exceed: true
@@ -92,7 +95,7 @@ ring-preview:
   enabled: true
   
   # Particle effect type (see Bukkit Particle enum)
-  particle: "VILLAGER_HAPPY"
+  particle: "HAPPY_VILLAGER"
   
   # Number of particles per ring
   particle-count: 20

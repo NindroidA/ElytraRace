@@ -26,11 +26,11 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Main plugin class for ElytraRace v1.4.0
+ * Main plugin class for ElytraRace v1.5.0
  * Handles initialization, command registration, and manager lifecycle.
- * 
+ *
  * @author Kartik Fulara
- * @version 1.1.0
+ * @version 1.5.0
  */
 public class ElytraRacePlugin extends JavaPlugin {
 

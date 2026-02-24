@@ -94,6 +94,8 @@ public class RaceCommand implements CommandExecutor, TabCompleter {
                 return handlePlatform(sender, args);
             case "clearrings":
                 return handleClearRings(sender);
+            case "toggle":
+                return handleToggle(sender);
             default:
                 showHelp(sender);
                 return true;
@@ -457,7 +459,7 @@ public class RaceCommand implements CommandExecutor, TabCompleter {
         try {
             return Particle.valueOf(particleName);
         } catch (IllegalArgumentException e) {
-            plugin.getLogger().warning("Invalid particle type: " + particleName + ", using VILLAGER_HAPPY");
+            plugin.getLogger().warning("Invalid particle type: " + particleName + ", using HAPPY_VILLAGER");
             return Particle.HAPPY_VILLAGER;
         }
     }
@@ -505,6 +507,18 @@ public class RaceCommand implements CommandExecutor, TabCompleter {
                 break;
         }
 
+        return true;
+    }
+
+    private boolean handleToggle(CommandSender sender) {
+        if (!sender.hasPermission("race.admin")) {
+            sender.sendMessage(plugin.getConfigManager().getMessage("no-permission"));
+            return true;
+        }
+
+        plugin.getRaceManager().toggleRace();
+        String status = plugin.getRaceManager().isRaceEnabled() ? "§aENABLED" : "§cDISABLED";
+        sender.sendMessage(plugin.getConfigManager().getPrefix() + "§eRace toggled: " + status);
         return true;
     }
 
@@ -590,6 +604,7 @@ public class RaceCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage("§e/er setup setorientation <ring> <dir> §7- Change orientation");
             sender.sendMessage("§e/er setup setradius <ring> <r> §7- Change detection radius");
             sender.sendMessage("§e/er clearrings §7- Remove all rings");
+            sender.sendMessage("§e/er toggle §7- Enable/disable racing");
         }
         sender.sendMessage("§6§l╚════════════════════════════════════╝");
     }
@@ -806,7 +821,7 @@ public class RaceCommand implements CommandExecutor, TabCompleter {
             if (sender.hasPermission("race.admin")) {
                 completions.addAll(Arrays.asList(
                     "setup", "start", "reset", "forcejoin", "testmode",
-                    "import", "preview", "platform", "clearrings"
+                    "import", "preview", "platform", "clearrings", "toggle"
                 ));
             }
             return completions;

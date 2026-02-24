@@ -28,6 +28,7 @@ public class ConfigManager {
     }
 
     private void setupDefaults() {
+        plugin.getConfig().addDefault("race.enabled", true);
         plugin.getConfig().addDefault("race.min-players", 2);
         plugin.getConfig().addDefault("race.max-players", 5);
         plugin.getConfig().addDefault("race.countdown-seconds", 5);
@@ -44,7 +45,7 @@ public class ConfigManager {
         plugin.getConfig().addDefault("region-import.auto-detect", true);
         
         // NEW: Feature 9 - Anti-cheat boundary
-        plugin.getConfig().addDefault("anti-cheat.boundary-distance", 50);
+        plugin.getConfig().addDefault("anti-cheat.boundary-distance", 150);
         plugin.getConfig().addDefault("anti-cheat.teleport-on-exceed", true);
         plugin.getConfig().addDefault("anti-cheat.warnings-before-teleport", 3);
         
@@ -61,7 +62,7 @@ public class ConfigManager {
         
         // NEW: Feature 8 - Ring preview
         plugin.getConfig().addDefault("ring-preview.enabled", true);
-        plugin.getConfig().addDefault("ring-preview.particle", "VILLAGER_HAPPY");
+        plugin.getConfig().addDefault("ring-preview.particle", "HAPPY_VILLAGER");
         plugin.getConfig().addDefault("ring-preview.particle-count", 20);
 
         // NEW: v1.4.0 - Ring system settings
@@ -95,6 +96,15 @@ public class ConfigManager {
         plugin.getConfig().addDefault("messages.race-in-progress", "&cA race is already in progress! Wait for it to finish.");
 
         plugin.getConfig().options().copyDefaults(true);
+        plugin.saveConfig();
+    }
+
+    public boolean isRaceEnabled() {
+        return plugin.getConfig().getBoolean("race.enabled", true);
+    }
+
+    public void setRaceEnabled(boolean enabled) {
+        plugin.getConfig().set("race.enabled", enabled);
         plugin.saveConfig();
     }
 
@@ -141,7 +151,7 @@ public class ConfigManager {
     
     // NEW: Feature 9
     public int getBoundaryDistance() {
-        return plugin.getConfig().getInt("anti-cheat.boundary-distance", 50);
+        return plugin.getConfig().getInt("anti-cheat.boundary-distance", 150);
     }
     
     public boolean isTeleportOnExceed() {
@@ -188,7 +198,7 @@ public class ConfigManager {
     }
     
     public String getPreviewParticle() {
-        return plugin.getConfig().getString("ring-preview.particle", "VILLAGER_HAPPY");
+        return plugin.getConfig().getString("ring-preview.particle", "HAPPY_VILLAGER");
     }
     
     public int getPreviewParticleCount() {
@@ -229,35 +239,6 @@ public class ConfigManager {
         plugin.getConfig().set("lobby.z", loc.getZ());
         plugin.getConfig().set("lobby.yaw", loc.getYaw());
         plugin.getConfig().set("lobby.pitch", loc.getPitch());
-        plugin.saveConfig();
-    }
-
-    public Map<String, Location> getRingLocations() {
-        Map<String, Location> rings = new LinkedHashMap<>();
-        ConfigurationSection ringsSection = plugin.getConfig().getConfigurationSection("rings");
-
-        if (ringsSection == null) return rings;
-
-        for (String ringName : ringsSection.getKeys(false)) {
-            ConfigurationSection ring = ringsSection.getConfigurationSection(ringName);
-            if (ring == null) continue;
-
-            String world = ring.getString("world");
-            double x = ring.getDouble("x");
-            double y = ring.getDouble("y");
-            double z = ring.getDouble("z");
-
-            rings.put(ringName, new Location(plugin.getServer().getWorld(world), x, y, z));
-        }
-
-        return rings;
-    }
-
-    public void addRing(String ringName, Location loc) {
-        plugin.getConfig().set("rings." + ringName + ".world", loc.getWorld().getName());
-        plugin.getConfig().set("rings." + ringName + ".x", loc.getX());
-        plugin.getConfig().set("rings." + ringName + ".y", loc.getY());
-        plugin.getConfig().set("rings." + ringName + ".z", loc.getZ());
         plugin.saveConfig();
     }
 

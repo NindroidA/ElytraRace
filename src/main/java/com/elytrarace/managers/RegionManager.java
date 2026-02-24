@@ -24,7 +24,6 @@ public class RegionManager {
     private final Map<RegionType, CachedRegion> regionCache = new EnumMap<>(RegionType.class);
 
     public enum RegionType {
-        LOBBY,
         START,
         FINISH
     }

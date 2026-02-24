@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.5.0] - 2026-02-23
+
+### Full Bug Fix & Integration Overhaul
+
+### Added
+- **`/er toggle`** — Enable/disable racing system; admin setup commands still work when disabled
+- **`race.enabled` config option** — Persists toggle state across restarts
+
+### Fixed
+- **GTA navigation arrow not visible** — Removed `showTimerToAll()` call that was overwriting the action bar; `updatePlayerTime()` already shows timer + rings + nav arrow
+- **`/er forcejoin` not registering player in lobby** — Force-joined players are now properly added to the start lobby via `forcePlayerEnteredStart()`
+- **Inventory validation allowing non-rocket items** — Now correctly blocks readying if inventory contains any non-rocket items
+- **Boundary anti-cheat measuring from wrong ring** — Now measures distance from NEXT expected ring (or finish region if all rings passed); teleports to last passed ring (or start) on exceed
+- **Auto-spectator not restoring game mode** — Stores original game mode on lobby entry, restores it on race end instead of hardcoding ADVENTURE
+- **Only spectators returned to lobby** — All race participants are now returned to lobby on race end
+- **Test mode blocking real races** — Test mode no longer sets `racing = true/false`, making it fully independent from real races
+- **Test mode players not getting ring detection** — RaceListener now checks `isInTestMode()` in addition to `isRacing()` for ring detection
+- **`VILLAGER_HAPPY` particle error** — Fixed to `HAPPY_VILLAGER` (correct Bukkit enum name) in config and defaults
+- **Boundary distance too aggressive** — Default bumped from 50 to 150 blocks
+
+### Removed
+- Dead `showTimer()` and `showTimerToAll()` methods from TimerHelper
+- Dead `VoiidCountdownTimer` dependency check from TimerHelper
+- Dead `getRingLocations()` and `addRing()` methods from ConfigManager (superseded by `getRingDefinitions()`)
+- Unused `RegionType.LOBBY` enum value from RegionManager
+
+---
+
 ## [1.4.6] - 2026-02-23
 
 ### Bug Fixes & Stability
@@ -469,7 +497,8 @@ First stable release of ElytraRace with core racing functionality.
 
 | Version | Release Date | Type | Description | Status |
 |---------|-------------|------|-------------|--------|
-| **1.4.5** | 2026-02-23 | Patch | Ring Management Commands & Polish | ✅ CURRENT |
+| **1.5.0** | 2026-02-23 | Minor | Full Bug Fix & Integration Overhaul | ✅ CURRENT |
+| **1.4.5** | 2026-02-23 | Patch | Ring Management Commands & Polish | ✅ STABLE |
 | **1.4.4** | 2026-02-23 | Patch | GTA-Style Navigation Indicator | ✅ STABLE |
 | **1.4.3** | 2026-02-23 | Patch | Ring Particles & In-Race Visibility | ✅ STABLE |
 | **1.4.2** | 2026-02-23 | Patch | Sound Effects System | ✅ STABLE |
@@ -541,9 +570,9 @@ ElytraRace follows [Semantic Versioning](https://semver.org/):
 
 | Version | Status | Updates | Support Until |
 |---------|--------|---------|---------------|
-| **1.4.x** | ✅ Current | All updates | Current + 1 minor |
-| 1.3.x | ⚠️ Maintenance | Security only | 3 months after 1.4.0 |
-| < 1.3 | ❌ Unsupported | None | End of Life |
+| **1.5.x** | ✅ Current | All updates | Current + 1 minor |
+| 1.4.x | ⚠️ Maintenance | Security only | 3 months after 1.5.0 |
+| < 1.4 | ❌ Unsupported | None | End of Life |
 
 ---
 
@@ -551,7 +580,7 @@ ElytraRace follows [Semantic Versioning](https://semver.org/):
 
 - **[Latest Release](https://github.com/NindroidA/ElytraRace/releases/latest)**
 - **[All Releases](https://github.com/NindroidA/ElytraRace/releases)**
-- **[Compare v1.3.0...v1.4.5](https://github.com/NindroidA/ElytraRace/compare/v1.3.0...v1.4.5)**
+- **[Compare v1.4.6...v1.5.0](https://github.com/NindroidA/ElytraRace/compare/v1.4.6...v1.5.0)**
 - **[Milestones](https://github.com/NindroidA/ElytraRace/milestones)**
 - **[Report Issues](https://github.com/NindroidA/ElytraRace/issues)**
 
@@ -590,10 +619,12 @@ Thanks to everyone who:
 
 ---
 
-**Changelog v1.4.5**
+**Changelog v1.5.0**
 Last Updated: 2026-02-23
 Maintained By: NindroidA
 
+[1.5.0]: https://github.com/NindroidA/ElytraRace/releases/tag/v1.5.0
+[1.4.6]: https://github.com/NindroidA/ElytraRace/releases/tag/v1.4.6
 [1.4.5]: https://github.com/NindroidA/ElytraRace/releases/tag/v1.4.5
 [1.4.4]: https://github.com/NindroidA/ElytraRace/releases/tag/v1.4.4
 [1.4.3]: https://github.com/NindroidA/ElytraRace/releases/tag/v1.4.3
