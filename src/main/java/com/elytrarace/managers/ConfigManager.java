@@ -91,6 +91,8 @@ public class ConfigManager {
         plugin.getConfig().addDefault("messages.force-joined", "&aYou have been force-joined to the race by an admin!");
         plugin.getConfig().addDefault("messages.test-mode-enabled", "&e⚠ Test mode enabled - stats will not be saved.");
         plugin.getConfig().addDefault("messages.dependencies-missing", "&c⚠ WorldEdit/WorldGuard not found. Region import disabled.");
+        plugin.getConfig().addDefault("messages.wrong-ring", "&c&lWRONG RING! &fYou need ring #{expected} next.");
+        plugin.getConfig().addDefault("messages.race-in-progress", "&cA race is already in progress! Wait for it to finish.");
 
         plugin.getConfig().options().copyDefaults(true);
         plugin.saveConfig();

@@ -194,6 +194,8 @@ messages:
   force-joined: "&aYou have been force-joined to the race by an admin!"
   test-mode-enabled: "&e⚠ Test mode enabled - your stats will not be saved."
   dependencies-missing: "&c⚠ WorldEdit/WorldGuard not found. Region import features disabled."
+  wrong-ring: "&c&lWRONG RING! &fYou need ring #{expected} next."
+  race-in-progress: "&cA race is already in progress! Wait for it to finish."
 
 
 ############################################################

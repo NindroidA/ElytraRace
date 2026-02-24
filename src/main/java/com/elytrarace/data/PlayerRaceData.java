@@ -34,8 +34,9 @@ public class PlayerRaceData {
     private int rocketsUsed = 0;
     private int maxRockets;
 
-    // Ring order tracking (for backward detection)
+    // Ring order tracking
     private String lastRingPassed = null;
+    private int expectedNextOrder = 1;
 
     public PlayerRaceData(UUID playerUuid, int maxRockets) {
         this.playerUuid = playerUuid;
@@ -51,6 +52,7 @@ public class PlayerRaceData {
         disqualificationReason = null;
         rocketsUsed = 0;
         lastRingPassed = null;
+        expectedNextOrder = 1;
         startTime = System.currentTimeMillis();
         finishTime = 0;
     }
@@ -143,5 +145,19 @@ public class PlayerRaceData {
 
     public String getLastRingPassed() {
         return lastRingPassed;
+    }
+
+    public int getExpectedNextOrder() {
+        return expectedNextOrder;
+    }
+
+    /** Check if the given ring order matches what we expect next */
+    public boolean isCorrectNextRing(int ringOrder) {
+        return ringOrder == expectedNextOrder;
+    }
+
+    /** Advance to the next expected ring order */
+    public void advanceExpectedOrder() {
+        expectedNextOrder++;
     }
 }

@@ -96,13 +96,19 @@ public class RaceManager {
     }
 
     public void playerEnteredStart(Player player) {
+        // Mid-race lockout: prevent joining during an active race
+        if (racing) {
+            player.sendMessage(cfg.getPrefix() + "§cA race is already in progress! Wait for it to finish.");
+            return;
+        }
+
         startLobbyPlayers.add(player.getUniqueId());
         racePlayers.putIfAbsent(player.getUniqueId(), new PlayerRaceData(player.getUniqueId(), cfg.getMaxRocketUses()));
-        
+
         // Show rules on enter
         showJoinRules(player);
-        
-        broadcastToStart(cfg.getPrefix() + "§e" + player.getName() + " §aentered the start area (" + 
+
+        broadcastToStart(cfg.getPrefix() + "§e" + player.getName() + " §aentered the start area (" +
             startLobbyPlayers.size() + "/" + cfg.getMaxPlayers() + ")");
     }
 
@@ -362,12 +368,23 @@ public class RaceManager {
         PlayerRaceData data = racePlayers.get(player.getUniqueId());
         if (data == null || data.isDisqualified()) return;
         if (data.hasPassedRing(ringName)) return;
-        
+
+        // Ring order enforcement
+        if (cfg.isRingOrderEnforced()) {
+            var ringDef = cfg.getRingDefinitions().get(ringName);
+            if (ringDef != null && !data.isCorrectNextRing(ringDef.getOrder())) {
+                // Wrong ring — notify player but don't pass it
+                player.sendMessage(cfg.getPrefix() + "§c§lWRONG RING! §fYou need ring #" + data.getExpectedNextOrder() + " next.");
+                return;
+            }
+        }
+
         data.passRing(ringName);
-        
-        // NEW: Feature 9 - Update last checkpoint
+        data.advanceExpectedOrder();
+
+        // Update last checkpoint for boundary system
         lastCheckpoints.put(player.getUniqueId(), ringName);
-        boundaryWarnings.remove(player.getUniqueId()); // Reset warnings
+        boundaryWarnings.remove(player.getUniqueId());
 
         int totalRings = cfg.getRingDefinitions().size();
         int current = data.getRingsCount();

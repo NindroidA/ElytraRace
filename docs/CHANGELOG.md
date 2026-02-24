@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.1] - 2026-02-23
+
+### Ring Order Enforcement & Mid-Race Lockout
+
+### Added
+- **Ring order enforcement** — Players must pass rings in order (ring #1 before #2, etc.)
+- **Wrong ring feedback** — Players get a clear message when they fly through the wrong ring
+- **Mid-race join lockout** — Players cannot enter the start lobby while a race is in progress
+- **`expectedNextOrder` tracking** — PlayerRaceData now tracks which ring the player needs next
+- New config messages: `wrong-ring`, `race-in-progress`
+
+### Changed
+- `passRing()` now validates ring order before crediting the ring pass
+- `playerEnteredStart()` now rejects entry during active races
+
+### Config
+- `rings.enforce-order: true` controls whether order is enforced (default: on)
+
+---
+
 ## [1.4.0] - 2026-02-23
 
 ### Ring Data Model & Detection Overhaul
