@@ -560,8 +560,13 @@ public class RaceManager {
         double time = data.finishRace();
         finishedPlayers.add(player.getUniqueId());
         soundManager.playRaceFinish(player);
-        
-        // NEW: Feature 5 - Don't save stats in test mode
+
+        // Finish line celebration particles
+        Location finishLoc = player.getLocation();
+        player.getWorld().spawnParticle(Particle.FIREWORK, finishLoc, 50, 1.5, 1.5, 1.5, 0.1);
+        player.getWorld().spawnParticle(Particle.TOTEM_OF_UNDYING, finishLoc, 30, 1.0, 2.0, 1.0, 0.5);
+
+        // Don't save stats in test mode
         if (!isInTestMode(player.getUniqueId())) {
             plugin.getStatsManager().addWin(player.getUniqueId(), time);
             

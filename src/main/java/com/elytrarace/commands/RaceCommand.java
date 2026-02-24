@@ -92,6 +92,8 @@ public class RaceCommand implements CommandExecutor, TabCompleter {
                 return handlePreview(sender);
             case "platform":
                 return handlePlatform(sender, args);
+            case "clearrings":
+                return handleClearRings(sender);
             default:
                 showHelp(sender);
                 return true;
@@ -587,6 +589,10 @@ public class RaceCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage("§e/er setup finish §7- Set finish region");
             sender.sendMessage("§e/er setup addring <name> [orientation] §7- Add ring (WE sel → REGION)");
             sender.sendMessage("§e/er setup removering <name> §7- Remove a ring");
+            sender.sendMessage("§e/er setup setorder <ring> <#> §7- Change ring order");
+            sender.sendMessage("§e/er setup setorientation <ring> <dir> §7- Change orientation");
+            sender.sendMessage("§e/er setup setradius <ring> <r> §7- Change detection radius");
+            sender.sendMessage("§e/er clearrings §7- Remove all rings");
         }
         sender.sendMessage("§6§l╚════════════════════════════════════╝");
     }
@@ -710,10 +716,88 @@ public class RaceCommand implements CommandExecutor, TabCompleter {
                 sender.sendMessage(plugin.getConfigManager().getPrefix() +
                     "§aRing '" + removeTarget + "' removed.");
                 return true;
+            case "setorder":
+                if (args.length < 4) {
+                    sender.sendMessage("§cUsage: /er setup setorder <ring> <order>");
+                    return true;
+                }
+                return handleSetRingProperty(sender, args[2], "order", args[3]);
+            case "setorientation":
+                if (args.length < 4) {
+                    sender.sendMessage("§cUsage: /er setup setorientation <ring> <VERTICAL_NS|VERTICAL_EW|HORIZONTAL>");
+                    return true;
+                }
+                return handleSetRingProperty(sender, args[2], "orientation", args[3]);
+            case "setradius":
+                if (args.length < 4) {
+                    sender.sendMessage("§cUsage: /er setup setradius <ring> <radius>");
+                    return true;
+                }
+                return handleSetRingProperty(sender, args[2], "radius", args[3]);
             default:
                 showHelp(sender);
                 return true;
         }
+    }
+
+    private boolean handleSetRingProperty(CommandSender sender, String ringName, String property, String value) {
+        if (!plugin.getConfigManager().getRingDefinitions().containsKey(ringName)) {
+            sender.sendMessage(plugin.getConfigManager().getPrefix() + "§cRing not found: " + ringName);
+            return true;
+        }
+
+        String path = "rings." + ringName + "." + property;
+        switch (property) {
+            case "order" -> {
+                try {
+                    int order = Integer.parseInt(value);
+                    plugin.getConfig().set(path, order);
+                    plugin.saveConfig();
+                    plugin.getRaceListener().refreshRingCache();
+                    sender.sendMessage(plugin.getConfigManager().getPrefix() +
+                        "§aRing '" + ringName + "' order set to §e" + order);
+                } catch (NumberFormatException e) {
+                    sender.sendMessage("§cInvalid number: " + value);
+                }
+            }
+            case "orientation" -> {
+                try {
+                    Orientation.valueOf(value.toUpperCase());
+                    plugin.getConfig().set(path, value.toUpperCase());
+                    plugin.saveConfig();
+                    plugin.getRaceListener().refreshRingCache();
+                    sender.sendMessage(plugin.getConfigManager().getPrefix() +
+                        "§aRing '" + ringName + "' orientation set to §e" + value.toUpperCase());
+                } catch (IllegalArgumentException e) {
+                    sender.sendMessage("§cInvalid orientation: " + value);
+                    sender.sendMessage("§7Valid: VERTICAL_NS, VERTICAL_EW, HORIZONTAL");
+                }
+            }
+            case "radius" -> {
+                try {
+                    double radius = Double.parseDouble(value);
+                    plugin.getConfig().set(path, radius);
+                    plugin.saveConfig();
+                    plugin.getRaceListener().refreshRingCache();
+                    sender.sendMessage(plugin.getConfigManager().getPrefix() +
+                        "§aRing '" + ringName + "' radius set to §e" + radius);
+                } catch (NumberFormatException e) {
+                    sender.sendMessage("§cInvalid number: " + value);
+                }
+            }
+        }
+        return true;
+    }
+
+    private boolean handleClearRings(CommandSender sender) {
+        if (!sender.hasPermission("race.admin")) {
+            sender.sendMessage(plugin.getConfigManager().getMessage("no-permission"));
+            return true;
+        }
+        plugin.getConfigManager().clearAllRings();
+        plugin.getRaceListener().refreshRingCache();
+        sender.sendMessage(plugin.getConfigManager().getPrefix() + "§aAll rings cleared!");
+        return true;
     }
 
     @Override
@@ -724,15 +808,16 @@ public class RaceCommand implements CommandExecutor, TabCompleter {
             ));
             if (sender.hasPermission("race.admin")) {
                 completions.addAll(Arrays.asList(
-                    "setup", "start", "reset", "forcejoin", "testmode", 
-                    "import", "preview", "platform"
+                    "setup", "start", "reset", "forcejoin", "testmode",
+                    "import", "preview", "platform", "clearrings"
                 ));
             }
             return completions;
         } else if (args.length == 2) {
             switch (args[0].toLowerCase()) {
                 case "setup":
-                    return Arrays.asList("lobby", "start", "finish", "addring", "removering");
+                    return Arrays.asList("lobby", "start", "finish", "addring", "removering",
+                        "setorder", "setorientation", "setradius");
                 case "stats":
                 case "pb":
                 case "forcejoin":
@@ -743,8 +828,16 @@ public class RaceCommand implements CommandExecutor, TabCompleter {
                     return Arrays.asList("create", "remove");
             }
         } else if (args.length == 3) {
-            if (args[0].equalsIgnoreCase("setup") && args[1].equalsIgnoreCase("removering")) {
-                return new ArrayList<>(plugin.getConfigManager().getRingDefinitions().keySet());
+            if (args[0].equalsIgnoreCase("setup")) {
+                String setupSub = args[1].toLowerCase();
+                if (setupSub.equals("removering") || setupSub.equals("setorder") ||
+                    setupSub.equals("setorientation") || setupSub.equals("setradius")) {
+                    return new ArrayList<>(plugin.getConfigManager().getRingDefinitions().keySet());
+                }
+            }
+        } else if (args.length == 4) {
+            if (args[0].equalsIgnoreCase("setup") && args[1].equalsIgnoreCase("setorientation")) {
+                return Arrays.asList("VERTICAL_NS", "VERTICAL_EW", "HORIZONTAL");
             }
         }
         return Collections.emptyList();

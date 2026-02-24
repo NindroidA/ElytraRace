@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.5] - 2026-02-23
+
+### Ring Management Commands & Polish
+
+### Added
+- **`/er setup setorder <ring> <#>`** — Change a ring's order number
+- **`/er setup setorientation <ring> <dir>`** — Change ring orientation (VERTICAL_NS/VERTICAL_EW/HORIZONTAL)
+- **`/er setup setradius <ring> <radius>`** — Change ring detection radius
+- **`/er clearrings`** — Remove all rings at once
+- **Finish line celebration particles** — Firework + totem particles burst on race finish
+- Tab completion for all new setup sub-commands with ring name suggestions
+- Orientation tab completion (VERTICAL_NS, VERTICAL_EW, HORIZONTAL)
+
+---
+
 ## [1.4.4] - 2026-02-23
 
 ### GTA-Style Navigation Indicator
