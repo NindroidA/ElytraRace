@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.6] - 2026-02-23
+
+### Bug Fixes & Stability
+
+### Fixed
+- **WorldEdit selection not working for ring creation** — Updated deprecated `getX()`/`getY()`/`getZ()` calls to `x()`/`y()`/`z()` on BlockVector3 across WorldEditHelper and RegionImportManager
+- **Ring orientation always defaulting to HORIZONTAL** — Changed `default ->` switch branches to explicit `case HORIZONTAL ->` in particle rendering (RaceManager and RaceCommand preview)
+- **Tab completion missing for addring orientation** — `/er setup addring <name>` now suggests VERTICAL_NS, VERTICAL_EW, HORIZONTAL as 4th argument
+- **`/er clearrings` wiping ring system settings** — `clearAllRings()` now preserves `default-orientation`, `enforce-order`, and `default-radius` config values
+- Improved error handling in WorldEditHelper — catches `Throwable` instead of `Exception` to handle `NoSuchMethodError` from API changes
+
+---
+
 ## [1.4.5] - 2026-02-23
 
 ### Ring Management Commands & Polish

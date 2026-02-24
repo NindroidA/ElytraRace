@@ -136,9 +136,9 @@ public class RegionImportManager {
         com.sk89q.worldedit.math.BlockVector3 min = region.getMinimumPoint();
         com.sk89q.worldedit.math.BlockVector3 max = region.getMaximumPoint();
         
-        double centerX = (min.getX() + max.getX()) / 2.0;
-        double centerY = (min.getY() + max.getY()) / 2.0;
-        double centerZ = (min.getZ() + max.getZ()) / 2.0;
+        double centerX = (min.x() + max.x()) / 2.0;
+        double centerY = (min.y() + max.y()) / 2.0;
+        double centerZ = (min.z() + max.z()) / 2.0;
         
         return new Location(world, centerX, centerY, centerZ);
     }
@@ -206,8 +206,8 @@ public class RegionImportManager {
             com.sk89q.worldedit.math.BlockVector3 max = region.getMaximumPoint();
             
             return new RegionBounds(
-                new Location(world, min.getX(), min.getY(), min.getZ()),
-                new Location(world, max.getX(), max.getY(), max.getZ())
+                new Location(world, min.x(), min.y(), min.z()),
+                new Location(world, max.x(), max.y(), max.z())
             );
             
         } catch (Exception e) {

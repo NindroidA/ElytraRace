@@ -44,11 +44,11 @@ public class WorldEditHelper {
             LocalSession session = we.getSessionManager().get(BukkitAdapter.adapt(player));
             Region region = session.getSelection(BukkitAdapter.adapt(player.getWorld()));
             BlockVector3 center = region.getCenter().toBlockPoint();
-            return new Location(player.getWorld(), center.getX(), center.getY(), center.getZ());
+            return new Location(player.getWorld(), center.x(), center.y(), center.z());
         } catch (IncompleteRegionException e) {
             player.sendMessage("§cYou must make a WorldEdit selection first!");
             return null;
-        } catch (Exception e) {
+        } catch (Throwable e) {
             plugin.getLogger().warning("WorldEdit selection error: " + e.getMessage());
             return null;
         }
@@ -61,8 +61,9 @@ public class WorldEditHelper {
             LocalSession session = we.getSessionManager().get(BukkitAdapter.adapt(player));
             Region region = session.getSelection(BukkitAdapter.adapt(player.getWorld()));
             BlockVector3 min = region.getMinimumPoint();
-            return new Location(player.getWorld(), min.getX(), min.getY(), min.getZ());
-        } catch (Exception e) {
+            return new Location(player.getWorld(), min.x(), min.y(), min.z());
+        } catch (Throwable e) {
+            plugin.getLogger().warning("WorldEdit getSelectionMin failed: " + e.getMessage());
             return null;
         }
     }
@@ -74,8 +75,9 @@ public class WorldEditHelper {
             LocalSession session = we.getSessionManager().get(BukkitAdapter.adapt(player));
             Region region = session.getSelection(BukkitAdapter.adapt(player.getWorld()));
             BlockVector3 max = region.getMaximumPoint();
-            return new Location(player.getWorld(), max.getX(), max.getY(), max.getZ());
-        } catch (Exception e) {
+            return new Location(player.getWorld(), max.x(), max.y(), max.z());
+        } catch (Throwable e) {
+            plugin.getLogger().warning("WorldEdit getSelectionMax failed: " + e.getMessage());
             return null;
         }
     }
@@ -85,9 +87,9 @@ public class WorldEditHelper {
         try {
             WorldEdit we = WorldEdit.getInstance();
             LocalSession session = we.getSessionManager().get(BukkitAdapter.adapt(player));
-            session.getSelection(BukkitAdapter.adapt(player.getWorld()));
-            return true;
-        } catch (Exception e) {
+            Region region = session.getSelection(BukkitAdapter.adapt(player.getWorld()));
+            return region != null;
+        } catch (Throwable e) {
             return false;
         }
     }

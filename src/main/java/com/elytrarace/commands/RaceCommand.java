@@ -420,23 +420,20 @@ public class RaceCommand implements CommandExecutor, TabCompleter {
                             // Orientation-aware particle circle
                             for (int i = 0; i < count; i++) {
                                 double angle = 2 * Math.PI * i / count;
-                                double px, py, pz;
+                                double px = 0, py = 0, pz = 0;
 
                                 switch (ring.getOrientation()) {
                                     case VERTICAL_NS -> {
-                                        // Ring face in XY plane — circle varies X and Y
                                         px = center.getX() + r * Math.cos(angle);
                                         py = center.getY() + r * Math.sin(angle);
                                         pz = center.getZ();
                                     }
                                     case VERTICAL_EW -> {
-                                        // Ring face in ZY plane — circle varies Z and Y
                                         px = center.getX();
                                         py = center.getY() + r * Math.sin(angle);
                                         pz = center.getZ() + r * Math.cos(angle);
                                     }
-                                    default -> {
-                                        // HORIZONTAL: Ring face in XZ plane (legacy)
+                                    case HORIZONTAL -> {
                                         px = center.getX() + r * Math.cos(angle);
                                         py = center.getY();
                                         pz = center.getZ() + r * Math.sin(angle);
@@ -836,8 +833,12 @@ public class RaceCommand implements CommandExecutor, TabCompleter {
                 }
             }
         } else if (args.length == 4) {
-            if (args[0].equalsIgnoreCase("setup") && args[1].equalsIgnoreCase("setorientation")) {
-                return Arrays.asList("VERTICAL_NS", "VERTICAL_EW", "HORIZONTAL");
+            if (args[0].equalsIgnoreCase("setup")) {
+                String setupSub = args[1].equalsIgnoreCase("setorientation") ? "setorientation"
+                    : args[1].equalsIgnoreCase("addring") ? "addring" : "";
+                if (setupSub.equals("setorientation") || setupSub.equals("addring")) {
+                    return Arrays.asList("VERTICAL_NS", "VERTICAL_EW", "HORIZONTAL");
+                }
             }
         }
         return Collections.emptyList();

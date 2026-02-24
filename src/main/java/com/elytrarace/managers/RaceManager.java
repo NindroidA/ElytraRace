@@ -400,7 +400,7 @@ public class RaceManager {
 
                     for (int i = 0; i < particleCount; i++) {
                         double angle = 2 * Math.PI * i / particleCount;
-                        double px, py, pz;
+                        double px = 0, py = 0, pz = 0;
 
                         switch (nextRing.getOrientation()) {
                             case VERTICAL_NS -> {
@@ -413,7 +413,7 @@ public class RaceManager {
                                 py = center.getY() + r * Math.sin(angle);
                                 pz = center.getZ() + r * Math.cos(angle);
                             }
-                            default -> {
+                            case HORIZONTAL -> {
                                 px = center.getX() + r * Math.cos(angle);
                                 py = center.getY();
                                 pz = center.getZ() + r * Math.sin(angle);

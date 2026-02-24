@@ -267,7 +267,16 @@ public class ConfigManager {
     }
     
     public void clearAllRings() {
-        plugin.getConfig().set("rings", null);
+        ConfigurationSection ringsSection = plugin.getConfig().getConfigurationSection("rings");
+        if (ringsSection != null) {
+            for (String key : ringsSection.getKeys(false)) {
+                // Preserve ring system settings, only remove actual ring entries
+                if (key.equals("default-orientation") || key.equals("enforce-order") || key.equals("default-radius")) {
+                    continue;
+                }
+                plugin.getConfig().set("rings." + key, null);
+            }
+        }
         plugin.saveConfig();
     }
 
