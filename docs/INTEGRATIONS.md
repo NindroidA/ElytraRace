@@ -56,7 +56,10 @@ The largest Bukkit/Spigot community. Best for maximum visibility.
 [LIST]
 [*]Automatic race joining via start region
 [*]Ready-check system with countdown
-[*]Ring detection with order enforcement
+[*]Ring detection with order enforcement and orientations
+[*]Two ring types: POINT (sphere) and REGION (WorldEdit cuboid)
+[*]Sound effects for all race events
+[*]In-race ring particles and GTA-style navigation
 [*]Anti-cheat: rocket limits and skip detection
 [*]Statistics and leaderboard system
 [*]WorldEdit integration
@@ -157,7 +160,7 @@ Older platform, less active but still used.
 
 ### WorldEdit (Already Integrated)
 
-Used for region selection and setup.
+Used for region selection, setup, and REGION-type ring creation.
 
 **Maven Dependency**:
 ```xml
@@ -171,8 +174,11 @@ Used for region selection and setup.
 
 **Usage in Plugin**:
 - Region selection for start/finish areas
-- Ring placement from selection center
+- **v1.4.0+**: REGION ring creation from WorldEdit selection (cuboid bounds)
+- Ring placement from selection center (POINT rings)
 - Zone definition
+
+See [WorldEdit Integration Guide](WORLDEDIT.md) for full details.
 
 ---
 

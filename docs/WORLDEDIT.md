@@ -1,187 +1,273 @@
-# Changelog
+# WorldEdit Integration Guide
 
-All notable changes to ElytraRace are documented here.
-
-Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).  
-Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+Complete guide for using WorldEdit with ElytraRace v1.4.5
 
 ---
 
-## [1.0.0] - 2025-11-22
+## Table of Contents
 
-Initial release of ElytraRace.
-
-### Added
-
-**Core Racing Features**
-- Automatic race joining by entering start region
-- Ready-check system with player countdown
-- Ring detection with 5-block radius
-- Order enforcement for rings (must be completed sequentially)
-- Finish region detection
-- Race timer system (per-player and global)
-
-**Anti-Cheat System**
-- Rocket usage tracking (max 3 per race)
-- Ring skip detection
-- Disqualification system with reasons
-- Disconnect handling (automatic DNF)
-- Race timeout (default 30 minutes)
-
-**Statistics & Leaderboards**
-- Win tracking
-- Total races played counter
-- Best time records
-- Average time calculation
-- Win rate percentage
-- Top 10 leaderboard
-
-**Commands**
-- `/er rules` - Display race rules
-- `/er stats [player]` - View statistics
-- `/er top` - View leaderboard
-- `/er timer` - View race time
-- `/er progress` - View current progress
-- `/er start` - Force start race (admin)
-- `/er reset` - Reset race (admin)
-- `/er setup lobby` - Set lobby location
-- `/er setup start` - Define start region via WorldEdit
-- `/er setup finish` - Define finish region via WorldEdit
-- `/er setup addring <n>` - Add ring at location
-- `/er setup addringwe <n>` - Add ring from WorldEdit selection
-- `/er setup removering <n>` - Remove ring
-- `/er listrings` - List configured rings
-- `/ready` - Toggle ready status
-
-**Configuration**
-- Customizable min/max players (default 2-5)
-- Adjustable countdown duration (default 5 seconds)
-- Configurable ready timeout (default 2 minutes)
-- Customizable max race time (default 30 minutes)
-- Full message customization via config.yml
-- Color code support in all messages
-- Ring detection radius configuration
-
-**Permissions**
-- `race.use` - Basic race commands (default: true)
-- `race.admin` - Admin commands (default: op)
-- `race.stats` - View statistics (default: true)
-- `race.top` - View leaderboard (default: true)
-
-**Technical Features**
-- WorldEdit integration for region setup
-- Persistent data storage (YAML-based)
-- Event-driven architecture
-- Optimized ring detection with caching
-- Thread-safe timer system
-- Automatic region checking with 250ms cache
-- Pre-computed squared distances for performance
-
-**Documentation**
-- Complete README with setup guide
-- Detailed command reference (COMMANDS.md)
-- Installation guide (INSTALLATION.md)
-- WorldEdit integration guide (WORLDEDIT.md)
-- Contributing guidelines (CONTRIBUTING.md)
-- Security policy (SECURITY.md)
-- Inline code documentation
-
-### Technical Details
-
-**Built for:**
-- Minecraft 1.21.4+
-- Paper/Spigot API
-- Java 21+
-
-**Dependencies:**
-- WorldEdit 7.3.3+ (required)
-- VoiidCountdownTimer (optional, auto-detected)
-
-**Performance:**
-- Optimized movement checking (ignores head turns)
-- Cached region checks (5 tick interval)
-- Pre-computed ring distances
-- Async-compatible
-- Minimal CPU usage (~2-4% per player)
+- [Overview](#overview)
+- [Requirements](#requirements)
+- [Region Setup](#region-setup)
+- [Ring Setup](#ring-setup)
+- [Ring Types](#ring-types)
+- [Ring Orientations](#ring-orientations)
+- [WorldGuard Import](#worldguard-import)
+- [Tips & Best Practices](#tips--best-practices)
 
 ---
 
-## [Unreleased]
+## Overview
 
-Features planned for future releases:
-
-### Planned Features
-- Multiple race track support
-- Spectator mode
-- Race rewards/economy integration
-- PlaceholderAPI support
-- Checkpoint system for long races
-- Backward ring detection enhancement
-- Race replays
-- Custom particle effects
-- Sound effect customization
-
-### Under Consideration
-- Multiple difficulty modes
-- Team races
-- Time trial mode
-- Ghost racers (replay of best times)
-- Custom elytra cosmetics
+ElytraRace uses WorldEdit for defining race regions (start, finish) and for creating precise REGION-type rings. WorldEdit's selection wand (`//wand`) is used to select areas in-game, which ElytraRace then saves as race boundaries.
 
 ---
 
-## Version History
+## Requirements
 
-### Version Format
-
-**Major.Minor.Patch** (e.g., 1.0.0)
-
-- **Major**: Breaking changes or major feature additions
-- **Minor**: New features (backward compatible)
-- **Patch**: Bug fixes (backward compatible)
-
-### Support Policy
-
-- **Latest version**: Full support and updates
-- **Previous minor**: Security fixes only
-- **Older versions**: Please upgrade
+| Plugin | Version | Required |
+|--------|---------|----------|
+| **WorldEdit** | 7.3.3+ | Yes |
+| **WorldGuard** | 7.0.13+ | Optional (for region import) |
 
 ---
 
-## Upgrading
+## Region Setup
 
-### From Pre-1.0 to 1.0.0
+### Start Region
 
-This is the initial release - no upgrade path needed.
+The start region is where players gather before a race. Players automatically join the race when they enter this area.
 
-### General Upgrade Steps
+```bash
+# 1. Get WorldEdit wand
+//wand
 
-1. Download new version from [Releases](https://github.com/NindroidA/ElytraRace/releases)
-2. Stop your server
-3. Backup `plugins/ElytraRace/` folder
-4. Replace old JAR with new version
-5. Start server
-6. Check console for migration messages
-7. Test functionality
+# 2. Left-click one corner of the start area (pos1)
+# 3. Right-click the opposite corner (pos2)
 
-**Note**: Always backup before updating!
+# 4. Save as start region
+/er setup start
+```
+
+**Tips**:
+- Make the start area large enough for your max player count
+- Include some vertical space so players can glide off platforms
+- The region should be enclosed so players don't accidentally leave
+
+### Finish Region
+
+The finish region detects when racers complete the course.
+
+```bash
+# 1. Select the finish area with //wand
+# 2. Save as finish region
+/er setup finish
+```
+
+**Tips**:
+- Make the finish region wide enough that players can't miss it
+- Place it after the last ring
+- A tall, narrow region (like a wall) works well
 
 ---
 
-## Breaking Changes
+## Ring Setup
 
-None yet - this is the initial release.
+### Method 1: POINT Rings (Stand & Add)
+
+Stand at the center of where you want the ring and run:
+
+```bash
+/er setup addring ring1                    # Default orientation (VERTICAL_NS)
+/er setup addring ring2 VERTICAL_EW        # Specify orientation
+/er setup addring ring3 HORIZONTAL          # Horizontal ring
+```
+
+POINT rings use sphere detection — players must fly within the configured radius (default 5.0 blocks) of the center point.
+
+### Method 2: REGION Rings (WorldEdit Selection)
+
+For precise detection matching a built ring structure:
+
+```bash
+# 1. Get WorldEdit wand
+//wand
+
+# 2. Select the ring structure
+#    Left-click one corner, right-click the opposite corner
+#    The selection should tightly enclose your built ring
+
+# 3. Add the ring
+/er setup addring ring1                    # Default orientation
+/er setup addring ring2 VERTICAL_EW        # With orientation
+```
+
+When a WorldEdit selection is active, `/er setup addring` automatically creates a **REGION** ring instead of a POINT ring. REGION rings use cuboid detection — players must fly within the selected bounding box.
 
 ---
 
-## Links
+## Ring Types
 
-- [1.0.0 Release](https://github.com/NindroidA/ElytraRace/releases/tag/v1.0.0)
-- [Unreleased Changes](https://github.com/NindroidA/ElytraRace/compare/v1.0.0...HEAD)
-- [All Releases](https://github.com/NindroidA/ElytraRace/releases)
+### POINT
+
+- **Detection**: Sphere around a center point
+- **Radius**: Configurable (default 5.0 blocks, change with `/er setup setradius`)
+- **Best for**: Simple courses, rings in open air, quick setup
+- **Created by**: Running `/er setup addring` without a WorldEdit selection
+
+### REGION
+
+- **Detection**: Cuboid bounding box (min/max corners)
+- **Precision**: Matches exactly what you selected with WorldEdit
+- **Best for**: Built ring structures, precise hit boxes, complex shapes
+- **Created by**: Running `/er setup addring` with an active WorldEdit selection
 
 ---
 
-## Contributing
+## Ring Orientations
 
-Found a bug? Want to suggest a feature? See [CONTRIBUTING.md](CONTRIBUTING.md) for how to contribute.
+Orientations control how ring preview particles and in-race particles are rendered:
+
+| Orientation | Plane | Description | Best For |
+|-------------|-------|-------------|----------|
+| `VERTICAL_NS` | XY | Ring faces North/South | Rings along N-S flight paths |
+| `VERTICAL_EW` | ZY | Ring faces East/West | Rings along E-W flight paths |
+| `HORIZONTAL` | XZ | Ring faces Up/Down | Dive-through or climb-through rings |
+
+### Setting Orientation
+
+```bash
+# When adding a ring
+/er setup addring ring1 VERTICAL_EW
+
+# Change existing ring orientation
+/er setup setorientation ring1 HORIZONTAL
+```
+
+### Default Orientation
+
+Set in `config.yml`:
+
+```yaml
+rings:
+  default-orientation: "VERTICAL_NS"    # Applied to new rings without explicit orientation
+```
+
+---
+
+## WorldGuard Import
+
+If you have WorldGuard installed, you can create regions named `ring1`, `ring2`, etc. and import them all at once.
+
+### Step 1: Create WorldGuard Regions
+
+```bash
+//wand
+
+# Select first ring area
+//pos1  ->  //pos2
+/rg define ring1
+
+# Repeat for all rings
+/rg define ring2
+/rg define ring3
+# ... etc
+```
+
+### Step 2: Import
+
+```bash
+/er import rings
+```
+
+**Output**:
+```
+[ElytraRace] Importing rings from WorldGuard...
+[ElytraRace] Successfully imported 12 ring(s)!
+[ElytraRace] Use /er listrings to view them.
+```
+
+### Configuration
+
+```yaml
+region-import:
+  enabled: true       # Enable import feature
+  prefix: "ring"      # Region name prefix (detects ring1, ring2, etc.)
+  auto-detect: true   # Auto-detect on startup
+```
+
+---
+
+## Ring Management Commands
+
+After adding rings, fine-tune them with these commands:
+
+| Command | Description |
+|---------|-------------|
+| `/er listrings` | List all rings with type, order, orientation, radius |
+| `/er setup setorder <ring> <#>` | Change ring order number |
+| `/er setup setorientation <ring> <dir>` | Change ring orientation |
+| `/er setup setradius <ring> <radius>` | Change detection radius (POINT only) |
+| `/er setup removering <ring>` | Remove a single ring |
+| `/er clearrings` | Remove all rings |
+| `/er preview` | Toggle particle preview |
+
+---
+
+## Tips & Best Practices
+
+### Course Design
+
+1. **Use REGION rings for built structures** — Select the exact ring structure for precise hit detection
+2. **Use POINT rings for open air** — Simpler setup when there's no physical ring to match
+3. **Match orientation to flight direction** — A ring on a N-S path should be `VERTICAL_NS`
+4. **Test with preview** — `/er preview` shows orientation-aware particles so you can verify
+5. **Test with testmode** — `/er testmode` lets you fly through without affecting stats
+
+### Ring Order
+
+- Rings auto-increment order when added (first ring = order 1, second = order 2, etc.)
+- Use `/er setup setorder` to rearrange if needed
+- Use `/er listrings` to see current order (rings are displayed sorted by order)
+- When `rings.enforce-order: true` (default), players must pass rings sequentially
+
+### Performance
+
+- REGION rings are slightly more efficient than POINT rings (simple bounds check vs. distance calculation)
+- In-race ring particles only render within 100 blocks of the player
+- Ring detection is cached and optimized for minimal server impact
+
+---
+
+## Troubleshooting
+
+### "You need a WorldEdit selection first"
+
+**Cause**: No active WorldEdit selection when running `/er setup start`, `/er setup finish`
+
+**Solution**:
+```bash
+//wand              # Get the selection wand
+# Left-click pos1, right-click pos2
+/er setup start     # Now it works
+```
+
+### Ring added as POINT instead of REGION
+
+**Cause**: No active WorldEdit selection when adding ring
+
+**Solution**: Make a WorldEdit selection first, then run `/er setup addring <name>`
+
+### Rings not detecting players
+
+**Solutions**:
+1. Check ring radius: `/er listrings` shows radius for each ring
+2. Increase radius: `/er setup setradius <ring> 8.0`
+3. For REGION rings, ensure the selection fully encloses the flyable area
+4. Use `/er preview` to visualize ring boundaries
+
+---
+
+**WorldEdit Integration Guide v1.4.5**
+Last Updated: 2026-02-23
+Maintained By: NindroidA

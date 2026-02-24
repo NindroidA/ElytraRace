@@ -1,6 +1,6 @@
 # 📦 Installation & Setup Guide
 
-Complete installation guide for ElytraRace v1.3.0
+Complete installation guide for ElytraRace v1.4.5
 
 ---
 
@@ -98,7 +98,7 @@ cd ElytraRace
 mvn clean package
 
 # Copy to server
-cp target/ElytraRace-1.1.0.jar ~/minecraft-server/plugins/
+cp target/ElytraRace-1.4.5.jar ~/minecraft-server/plugins/
 ```
 
 ---
@@ -130,7 +130,7 @@ Watch the server console for:
   ✅ WorldEdit: FOUND
   ✅ WorldGuard: FOUND
 
-[ElytraRace] Plugin enabled successfully (v1.3.0)
+[ElytraRace] Plugin enabled successfully (v1.4.5)
 [ElytraRace] Ready for elytra racing!
 ```
 
@@ -173,13 +173,14 @@ Edit `plugins/ElytraRace/config.yml`:
 
 ```yaml
 ############################################################
-#              ELYTRA RACE CONFIGURATION v1.3.0
+#              ELYTRA RACE CONFIGURATION v1.4.0
 ############################################################
 
 race:
   min-players: 2                # Minimum to start
   max-players: 5                # Maximum allowed
   required-rockets: 64          # Rockets needed to ready
+  max-rocket-uses: 3            # Max rocket boosts during race
   auto-finish-time: 180         # Auto-end after 3 minutes
 
 region-import:
@@ -207,9 +208,17 @@ ring-preview:
   particle: "VILLAGER_HAPPY"    # Particle effect type
   particle-count: 20            # Particles per ring
 
+# NEW in v1.4.0 — Ring System
+rings:
+  default-orientation: "VERTICAL_NS"  # VERTICAL_NS, VERTICAL_EW, or HORIZONTAL
+  enforce-order: true                 # Must pass rings in order
+  default-radius: 5.0                # Detection radius for POINT rings
+
 messages:
   prefix: "&6[ElytraRace] &f"
   race-started: "&aThe race has started! Fly through all the rings!"
+  wrong-ring: "&c&lWRONG RING! &fYou need ring #{expected} next."
+  race-in-progress: "&cA race is already in progress! Wait for it to finish."
   # ... (full message customization)
 ```
 
@@ -292,11 +301,14 @@ Output:
 #### Step 4: Add Rings
 
 ```bash
-# Stand at each ring location and run:
-/er setup addring ring1
-/er setup addring ring2
-/er setup addring ring3
-# ... continue for all rings
+# Option A: Stand at each ring location (POINT rings)
+/er setup addring ring1                    # Default orientation
+/er setup addring ring2 VERTICAL_EW        # Specify orientation
+
+# Option B: Select built ring structures with WorldEdit (REGION rings)
+//wand
+//pos1  →  //pos2                          # Select the ring structure
+/er setup addring ring3                    # Saved as REGION type
 ```
 
 ---
@@ -457,6 +469,29 @@ region-import:
 
 ## 🔄 Updating
 
+### From v1.3.x to v1.4.x
+
+#### What's New
+The v1.4.x series introduces a complete ring system overhaul:
+- **Ring types**: POINT (sphere) and REGION (cuboid from WorldEdit selection)
+- **Ring orientations**: VERTICAL_NS, VERTICAL_EW, HORIZONTAL
+- **Ring order enforcement**: Players must pass rings in sequence
+- **Sound effects**: Audio feedback for all race events
+- **In-race ring particles**: See your next ring highlighted during races
+- **GTA-style navigation**: Action bar shows direction arrow and distance to next ring
+- **Ring management**: setorder, setorientation, setradius, clearrings commands
+- **Finish line celebration**: Firework particles on race completion
+
+#### Upgrade Steps
+1. Stop server
+2. Backup `plugins/ElytraRace/`
+3. Replace JAR with v1.4.5
+4. Start server — existing rings auto-migrate (treated as POINT type with defaults)
+
+**No breaking changes** — fully backward compatible with v1.3.x configs.
+
+---
+
 ### From v1.0.x to v1.3.0
 
 #### Step 1: Backup Current Installation
@@ -491,11 +526,8 @@ cd ..
 
 Check console for:
 ```
-[ElytraRace] Plugin enabled successfully (v1.3.0)
-[ElytraRace] NEW FEATURES:
-[ElytraRace]   • Force Join System
-[ElytraRace]   • Region Import
-[ElytraRace]   ... (all 10 features listed)
+[ElytraRace] Plugin enabled successfully (v1.4.5)
+[ElytraRace] Ring system loaded with orientation support
 ```
 
 #### Step 5: Use New Features
@@ -617,6 +649,6 @@ After installation:
 
 ---
 
-**Installation Guide v1.3.0**  
-Last Updated: 2025-01-XX  
-Maintained By: Kartik Fulara
+**Installation Guide v1.4.5**
+Last Updated: 2026-02-23
+Maintained By: NindroidA

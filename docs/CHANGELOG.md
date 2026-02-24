@@ -456,7 +456,14 @@ First stable release of ElytraRace with core racing functionality.
 
 | Version | Release Date | Type | Description | Status |
 |---------|-------------|------|-------------|--------|
-| **1.1.0** | 2025-01-XX | Major | Enhanced Systems (10 new features + critical fixes) | ✅ STABLE |
+| **1.4.5** | 2026-02-23 | Patch | Ring Management Commands & Polish | ✅ CURRENT |
+| **1.4.4** | 2026-02-23 | Patch | GTA-Style Navigation Indicator | ✅ STABLE |
+| **1.4.3** | 2026-02-23 | Patch | Ring Particles & In-Race Visibility | ✅ STABLE |
+| **1.4.2** | 2026-02-23 | Patch | Sound Effects System | ✅ STABLE |
+| **1.4.1** | 2026-02-23 | Patch | Ring Order Enforcement & Mid-Race Lockout | ✅ STABLE |
+| **1.4.0** | 2026-02-23 | Minor | Ring Data Model & Detection Overhaul | ✅ STABLE |
+| **1.3.0** | 2026-02-22 | Patch | Bug Fixes & Cleanup | ✅ STABLE |
+| **1.1.0** | 2025-01-XX | Major | Enhanced Systems (10 new features + critical fixes) | Legacy |
 | **1.0.0** | 2025-11-22 | Initial | Core racing functionality | Legacy |
 
 ---
@@ -521,9 +528,9 @@ ElytraRace follows [Semantic Versioning](https://semver.org/):
 
 | Version | Status | Updates | Support Until |
 |---------|--------|---------|---------------|
-| **1.1.x** | ✅ Current | All updates | Current + 1 minor |
-| 1.0.x | ⚠️ Maintenance | Security only | 3 months after 1.1.0 |
-| < 1.0 | ❌ Unsupported | None | End of Life |
+| **1.4.x** | ✅ Current | All updates | Current + 1 minor |
+| 1.3.x | ⚠️ Maintenance | Security only | 3 months after 1.4.0 |
+| < 1.3 | ❌ Unsupported | None | End of Life |
 
 ---
 
@@ -531,7 +538,7 @@ ElytraRace follows [Semantic Versioning](https://semver.org/):
 
 - **[Latest Release](https://github.com/NindroidA/ElytraRace/releases/latest)**
 - **[All Releases](https://github.com/NindroidA/ElytraRace/releases)**
-- **[Compare v1.0.0...v1.1.0](https://github.com/NindroidA/ElytraRace/compare/v1.0.0...v1.1.0)**
+- **[Compare v1.3.0...v1.4.5](https://github.com/NindroidA/ElytraRace/compare/v1.3.0...v1.4.5)**
 - **[Milestones](https://github.com/NindroidA/ElytraRace/milestones)**
 - **[Report Issues](https://github.com/NindroidA/ElytraRace/issues)**
 
@@ -570,9 +577,16 @@ Thanks to everyone who:
 
 ---
 
-**Changelog v1.1.0**  
-Last Updated: 2025-01-XX  
-Maintained By: Kartik Fulara
+**Changelog v1.4.5**
+Last Updated: 2026-02-23
+Maintained By: NindroidA
 
+[1.4.5]: https://github.com/NindroidA/ElytraRace/releases/tag/v1.4.5
+[1.4.4]: https://github.com/NindroidA/ElytraRace/releases/tag/v1.4.4
+[1.4.3]: https://github.com/NindroidA/ElytraRace/releases/tag/v1.4.3
+[1.4.2]: https://github.com/NindroidA/ElytraRace/releases/tag/v1.4.2
+[1.4.1]: https://github.com/NindroidA/ElytraRace/releases/tag/v1.4.1
+[1.4.0]: https://github.com/NindroidA/ElytraRace/releases/tag/v1.4.0
+[1.3.0]: https://github.com/NindroidA/ElytraRace/releases/tag/v1.3.0
 [1.1.0]: https://github.com/NindroidA/ElytraRace/releases/tag/v1.1.0
 [1.0.0]: https://github.com/NindroidA/ElytraRace/releases/tag/v1.0.0

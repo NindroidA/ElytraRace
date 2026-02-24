@@ -1,6 +1,6 @@
 # 📋 Commands Reference
 
-Complete command reference for ElytraRace v1.3.0
+Complete command reference for ElytraRace v1.4.5
 
 ---
 
@@ -177,18 +177,25 @@ Response: [ElytraRace] Race Time: 02:15
 ---
 
 ### `/er listrings`
-List all configured race rings.
+List all configured race rings with detailed info.
 
-**Permission**: `race.use`  
+**Permission**: `race.use`
 **Usage**: `/er listrings`
 
+**Shows** (sorted by order):
+- Ring type: `[POINT]` or `[REGION]`
+- Order number
+- Orientation (VERTICAL_NS, VERTICAL_EW, HORIZONTAL)
+- Detection radius (for POINT rings)
+- Coordinates
+
 ```
-╔═══ Configured Rings ═══╗
-• ring1 - (100, 150, -50)
-• ring2 - (150, 160, -30)
-• ring3 - (200, 155, -10)
+╔═══ Configured Rings (sorted by order) ═══╗
+#1 ring1 [POINT] VERTICAL_NS r=5.0 (100, 150, -50)
+#2 ring2 [REGION] VERTICAL_EW (150,160,-30 → 160,170,-20)
+#3 ring3 [POINT] HORIZONTAL r=5.0 (200, 155, -10)
 Total: 3 ring(s)
-╚════════════════════════╝
+╚═══════════════════════════════════════════╝
 ```
 
 ---
@@ -261,11 +268,12 @@ Error:   ❌ WorldEdit/WorldGuard not found!
 ### `/er preview`
 **NEW v1.3.0** - Toggle ring preview with particles.
 
-**Permission**: `race.admin`  
+**Permission**: `race.admin`
 **Usage**: `/er preview`
 
 **Features**:
 - Shows particle effects around rings
+- **v1.4.0+**: Orientation-aware — particles render as circles matching the ring's orientation
 - Admin-only visibility
 - Helps with course design
 - Toggle on/off
@@ -374,17 +382,27 @@ Success: ✅ Finish region saved.
 
 ---
 
-### `/er setup addring <name>`
-Add a ring at your current location.
+### `/er setup addring <name> [orientation]`
+Add a ring at your current location or from WorldEdit selection.
 
-**Permission**: `race.admin`  
-**Usage**: `/er setup addring <ring_name>`
+**Permission**: `race.admin`
+**Usage**: `/er setup addring <ring_name> [VERTICAL_NS|VERTICAL_EW|HORIZONTAL]`
+
+**v1.4.0+**: If you have a WorldEdit selection active, the ring is saved as a **REGION** type (cuboid detection matching your selection bounds). Without a selection, it's saved as a **POINT** type (sphere detection at your location).
+
+**Orientation** (optional): Controls particle rendering direction. Defaults to `VERTICAL_NS`.
+- `VERTICAL_NS` — Ring faces North/South (XY plane)
+- `VERTICAL_EW` — Ring faces East/West (ZY plane)
+- `HORIZONTAL` — Ring faces Up/Down (XZ plane)
 
 ```
-Example:
-/er setup addring ring1
+Examples:
+/er setup addring ring1                    # POINT at your location, default orientation
+/er setup addring ring2 VERTICAL_EW        # POINT with East/West orientation
+/er setup addring ring3                    # REGION if WorldEdit selection active
 
-Success: ✅ Ring 'ring1' added at X: 150 Y: 100 Z: -30
+Success (POINT):  ✅ POINT ring 'ring1' added (order #1, VERTICAL_NS, r=5.0)
+Success (REGION): ✅ REGION ring 'ring3' added from WorldEdit selection (order #3)
 ```
 
 ---
@@ -392,7 +410,7 @@ Success: ✅ Ring 'ring1' added at X: 150 Y: 100 Z: -30
 ### `/er setup removering <name>`
 Remove a configured ring.
 
-**Permission**: `race.admin`  
+**Permission**: `race.admin`
 **Usage**: `/er setup removering <ring_name>`
 
 ```
@@ -405,21 +423,78 @@ Error:   ❌ Ring not found: ring1
 
 ---
 
+### `/er setup setorder <ring> <order>`
+**NEW v1.4.5** - Change a ring's order number.
+
+**Permission**: `race.admin`
+**Usage**: `/er setup setorder <ring_name> <number>`
+
+```
+Example:
+/er setup setorder ring3 1
+
+Success: ✅ Ring 'ring3' order set to 1
+```
+
+---
+
+### `/er setup setorientation <ring> <orientation>`
+**NEW v1.4.5** - Change a ring's orientation.
+
+**Permission**: `race.admin`
+**Usage**: `/er setup setorientation <ring_name> <VERTICAL_NS|VERTICAL_EW|HORIZONTAL>`
+
+```
+Example:
+/er setup setorientation ring1 HORIZONTAL
+
+Success: ✅ Ring 'ring1' orientation set to HORIZONTAL
+```
+
+---
+
+### `/er setup setradius <ring> <radius>`
+**NEW v1.4.5** - Change a ring's detection radius (POINT rings only).
+
+**Permission**: `race.admin`
+**Usage**: `/er setup setradius <ring_name> <radius>`
+
+```
+Example:
+/er setup setradius ring1 8.0
+
+Success: ✅ Ring 'ring1' radius set to 8.0
+```
+
+---
+
+### `/er clearrings`
+**NEW v1.4.5** - Remove all configured rings at once.
+
+**Permission**: `race.admin`
+**Usage**: `/er clearrings`
+
+```
+Success: ✅ All rings cleared!
+```
+
+---
+
 ## 🔍 Diagnostic Commands
 
 ### `/er reload`
 **PLANNED** - Reload plugin configuration.
 
-**Permission**: `race.admin`  
-**Status**: Coming in v1.2.0
+**Permission**: `race.admin`
+**Status**: Coming in a future release
 
 ---
 
 ### `/er debug`
 **PLANNED** - Toggle debug mode.
 
-**Permission**: `race.admin`  
-**Status**: Coming in v1.2.0
+**Permission**: `race.admin`
+**Status**: Coming in a future release
 
 ---
 
@@ -442,9 +517,10 @@ elytrarace.*                          # All permissions
     ├── race.import                   # Import regions
     ├── race.preview                  # Ring preview
     ├── race.platform                 # Platform management
-    ├── race.setup                    # Setup commands
+    ├── race.setup                    # Setup commands (addring, removering, setorder, setorientation, setradius)
     ├── race.start                    # Force start
-    └── race.reset                    # Reset race
+    ├── race.reset                    # Reset race
+    └── race.clearrings               # Clear all rings
 ```
 
 ### Default Permissions
@@ -518,20 +594,27 @@ All `/er` commands can use alternative prefixes:
 
 # Step 2: Import or add rings
 /er import rings                 # Import from WorldGuard
-# OR manually add rings
-/er setup addring ring1
-/er setup addring ring2
-/er setup addring ring3
+# OR manually add rings (v1.4.0+)
+/er setup addring ring1 VERTICAL_NS   # Stand at ring, specify orientation
+/er setup addring ring2 VERTICAL_EW
+# OR with WorldEdit selection (creates REGION ring)
+//wand → select your built ring structure
+/er setup addring ring3                # Saves as REGION type
 
-# Step 3: Set lobby
+# Step 3: Fine-tune rings (v1.4.5+)
+/er setup setorder ring3 1       # Reorder rings
+/er setup setradius ring1 8.0    # Adjust detection radius
+/er setup setorientation ring2 HORIZONTAL  # Change orientation
+
+# Step 4: Set lobby
 /er setup lobby                  # Stand where you want lobby
 
-# Step 4: Preview course
+# Step 5: Preview course
 /er preview                      # Toggle ring visualization
 
-# Step 5: Test
+# Step 6: Test
 /er testmode                     # Enter test mode
-# Fly through the course
+# Fly through the course — you'll see ring particles & navigation arrows!
 /er testmode                     # Exit test mode
 ```
 
@@ -630,11 +713,16 @@ All `/er` commands can use alternative prefixes:
 
 ## 💡 Tips & Tricks
 
-1. **Tab Completion**: Press TAB after `/er` to see available commands
+1. **Tab Completion**: Press TAB after `/er` to see available commands (including ring names for setup commands)
 2. **Quick Stats**: `/er stats` shows your stats instantly
 3. **Course Testing**: Use `/er testmode` to test without affecting stats
-4. **Visual Validation**: Use `/er preview` to verify ring placement
+4. **Visual Validation**: Use `/er preview` to verify ring placement with orientation-aware particles
 5. **Batch Import**: Create WorldGuard regions then use `/er import rings`
+6. **WorldEdit Rings**: Select a built ring structure with `//wand`, then `/er setup addring <name>` saves it as a REGION ring with precise cuboid detection
+7. **Ring Order**: Rings auto-increment order when added. Use `/er setup setorder` to rearrange
+8. **In-Race HUD**: During races, the action bar shows timer, ring progress, and a GTA-style navigation arrow pointing to your next ring
+9. **Sound Feedback**: Every race event has sound effects — ring passes, wrong rings, countdown, finish, and more
+10. **Clear & Rebuild**: Use `/er clearrings` to wipe all rings and start fresh
 
 ---
 
@@ -645,5 +733,5 @@ All `/er` commands can use alternative prefixes:
 
 ---
 
-**Last Updated**: v1.3.0
+**Last Updated**: v1.4.5
 **Originally By**: Kartik Fulara | **Maintained By**: NindroidA

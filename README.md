@@ -23,10 +23,12 @@ ElytraRace transforms your Minecraft server into a competitive racing arena. Pla
 
 ### What Makes It Special
 
+- **Advanced Ring System**: POINT and REGION ring types with orientation support
+- **In-Race Navigation**: GTA-style direction arrows and ring particles guide racers
+- **Sound Effects**: Audio feedback for every race event
 - **Intelligent Anti-Cheat**: Rocket limits, boundary checks, and order validation
 - **Performance Optimized**: Cached calculations, minimal server impact
-- **WorldGuard Integration**: Import existing regions as race courses instantly
-- **Flexible Setup**: Manual placement or automated region import
+- **WorldEdit Integration**: Select built ring structures or import from WorldGuard
 - **Comprehensive Stats**: Personal bests, win rates, global leaderboards
 
 ---
@@ -40,13 +42,16 @@ ElytraRace transforms your Minecraft server into a competitive racing arena. Pla
 - **Real-Time Timer** - Per-player and global race timing
 - **Anti-Cheat Protection** - Prevents skipping, rocket abuse, and exploits
 
-### NEW in v1.3.0
-- **Ready Command Fix** - Elytra no longer incorrectly triggers "inventory must be empty"
-- **Rocket Anti-Cheat Fix** - Firework detection now works on Paper 1.21.4+
-- **Configurable Rocket Limits** - `max-rocket-uses` setting in config.yml
-- **DNF Stats Tracking** - Did-not-finish races now count in player stats
-- **Performance Optimizations** - Cached region bounds, optimized ring checks
-- **Accurate Rules Display** - Correctly shows ready-up vs in-race rocket limits
+### NEW in v1.4.x — Ring System Overhaul
+- **Dual Ring Types** - POINT (sphere detection) and REGION (WorldEdit cuboid selection)
+- **Ring Orientations** - VERTICAL_NS, VERTICAL_EW, HORIZONTAL with orientation-aware particles
+- **Ring Order Enforcement** - Players must pass rings in sequence with wrong-ring feedback
+- **Sound Effects** - XP orb dings, countdown ticks, finish fanfare, DQ sounds, and more
+- **In-Race Ring Particles** - Each racer sees END_ROD particles at their next ring
+- **GTA-Style Navigation** - Action bar shows direction arrow and distance to next ring
+- **Ring Management** - setorder, setorientation, setradius, clearrings commands
+- **Mid-Race Lockout** - Players can't enter lobby during active races
+- **Finish Line Celebration** - Firework + totem particle burst on completion
 
 ### Features (v1.1.0+)
 - Force-Join System, Region Import, Starting Platform
@@ -111,8 +116,10 @@ ElytraRace transforms your Minecraft server into a competitive racing arena. Pla
    /er setup start              # Define start region (WorldEdit)
    /er setup finish             # Define finish region (WorldEdit)
    /er import rings             # Import rings from WorldGuard
-   # OR
-   /er setup addring ring1      # Manually add rings
+   # OR manually add rings
+   /er setup addring ring1 VERTICAL_NS   # POINT ring at your location
+   # OR select ring with //wand, then:
+   /er setup addring ring1               # REGION ring from selection
    ```
 
 ### Quick Setup Example
@@ -157,8 +164,12 @@ See the [Installation Guide](docs/INSTALLATION.md) for detailed instructions.
 | `/er setup lobby` | Set lobby location | `race.admin` |
 | `/er setup start` | Define start region | `race.admin` |
 | `/er setup finish` | Define finish region | `race.admin` |
-| `/er setup addring <name>` | Add ring at current location | `race.admin` |
+| `/er setup addring <name> [orientation]` | Add ring (POINT or REGION with WE selection) | `race.admin` |
 | `/er setup removering <name>` | Remove a configured ring | `race.admin` |
+| `/er setup setorder <ring> <#>` | Change ring order | `race.admin` |
+| `/er setup setorientation <ring> <dir>` | Change ring orientation | `race.admin` |
+| `/er setup setradius <ring> <radius>` | Change ring radius | `race.admin` |
+| `/er clearrings` | Remove all rings | `race.admin` |
 | `/er start` | Force start race | `race.admin` |
 | `/er reset` | Reset active race | `race.admin` |
 
@@ -177,6 +188,11 @@ race:
   required-rockets: 64
   max-rocket-uses: 3
   auto-finish-time: 180
+
+rings:
+  default-orientation: "VERTICAL_NS"   # VERTICAL_NS, VERTICAL_EW, HORIZONTAL
+  enforce-order: true                   # Must pass rings in sequence
+  default-radius: 5.0                   # Detection radius for POINT rings
 
 region-import:
   enabled: true
@@ -231,13 +247,13 @@ See [Configuration Guide](docs/CONFIGURATION.md) for all options.
        ▼
 ┌─────────────┐
 │   Race      │──▶ Fly through rings in order
-│   Starts    │    Timer starts
+│   Starts    │    Timer + navigation arrows + ring particles
 └─────────────┘
        │
        ▼
 ┌─────────────┐
 │  Complete   │──▶ Enter finish region
-│  All Rings  │    Time recorded
+│  All Rings  │    Time recorded + celebration particles
 └─────────────┘
        │
        ▼
@@ -259,7 +275,7 @@ cd ElytraRace
 # Build with Maven
 mvn clean package
 
-# Output: target/ElytraRace-1.3.0.jar
+# Output: target/ElytraRace-1.4.5.jar
 ```
 
 ### Requirements for Building
@@ -337,7 +353,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ### Contributors
 - **Kartik Fulara** - *Original Creator* - [@Kartik-Fulara](https://github.com/Kartik-Fulara)
-- **NindroidA** - *Maintainer & Bug Fixes* - [@NindroidA](https://github.com/NindroidA)
+- **NindroidA** - *Maintainer, Ring System Overhaul & Bug Fixes* - [@NindroidA](https://github.com/NindroidA)
 
 ### Dependencies
 - [Paper](https://papermc.io/) - High-performance Minecraft server
@@ -361,12 +377,21 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ## 🗺️ Roadmap
 
+### Completed (v1.4.x)
+- [x] Ring orientation system (VERTICAL_NS, VERTICAL_EW, HORIZONTAL)
+- [x] REGION ring type (WorldEdit cuboid selection)
+- [x] Sound effects for all race events
+- [x] In-race ring particles
+- [x] GTA-style navigation indicator
+- [x] Ring management commands
+
 ### Future Plans
 - [ ] Team racing mode
 - [ ] Economy integration (Vault)
 - [ ] Multiple race tracks
 - [ ] PlaceholderAPI support
 - [ ] MySQL database support
+- [ ] Sound effect customization via config
 
 ---
 
