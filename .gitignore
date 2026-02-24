@@ -105,6 +105,10 @@ Thumbs.db
 # Linux
 .netrwhist
 
+# Claude Code
+.claude/
+CLAUDE.md
+
 # Plugin runtime data
 plugins/*.jar
 plugins/ElytraRace/races.yml

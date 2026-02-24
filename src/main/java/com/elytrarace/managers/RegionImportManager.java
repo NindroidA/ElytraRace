@@ -10,6 +10,7 @@
 package com.elytrarace.managers;
 
 import com.elytrarace.ElytraRacePlugin;
+import com.elytrarace.data.RingDefinition.Orientation;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.managers.RegionManager;
@@ -104,8 +105,17 @@ public class RegionImportManager {
             // Clear existing rings and import new ones
             plugin.getConfigManager().clearAllRings();
             
+            Orientation defaultOrient;
+            try {
+                defaultOrient = Orientation.valueOf(plugin.getConfigManager().getDefaultOrientation());
+            } catch (IllegalArgumentException e) {
+                defaultOrient = Orientation.VERTICAL_NS;
+            }
+            double defaultRadius = plugin.getConfigManager().getDefaultRingRadius();
+
             for (RingRegion ringRegion : ringRegions) {
-                plugin.getConfigManager().addRing(ringRegion.name, ringRegion.location);
+                plugin.getConfigManager().addRingPoint(ringRegion.name, ringRegion.location,
+                    ringRegion.number, defaultOrient, defaultRadius);
                 plugin.getLogger().info("Imported ring: " + ringRegion.name + " at " + 
                     formatLocation(ringRegion.location));
             }

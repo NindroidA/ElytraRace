@@ -10,6 +10,7 @@
 package com.elytrarace.listeners;
 
 import com.elytrarace.ElytraRacePlugin;
+import com.elytrarace.data.RingDefinition;
 import com.elytrarace.managers.RegionManager;
 import com.elytrarace.managers.RaceManager;
 import org.bukkit.Location;
@@ -23,6 +24,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 import org.bukkit.entity.EntityType;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -43,18 +45,14 @@ public class RaceListener implements Listener {
     // NEW: Feature 9 - Boundary check timing
     private final Map<UUID, Long> lastBoundaryCheck = new HashMap<>();
     
-    // OPTIMIZATION: Pre-compute squared distances for rings
-    private final Map<String, RingData> ringDataCache = new HashMap<>();
-    
+    // Ring definitions cache (v1.4.0: uses RingDefinition with type/orientation/bounds)
+    private final Map<String, RingDefinition> ringDefCache = new HashMap<>();
+
     // Check regions only every 250ms (5 ticks) instead of every tick
     private static final long REGION_CHECK_INTERVAL = 250;
-    
+
     // NEW: Feature 9 - Boundary check every 500ms
     private static final long BOUNDARY_CHECK_INTERVAL = 500;
-    
-    // Ring detection radius
-    private static final double RING_DETECTION_RADIUS = 5.0;
-    private static final double RING_DETECTION_RADIUS_SQUARED = RING_DETECTION_RADIUS * RING_DETECTION_RADIUS;
 
     public RaceListener(ElytraRacePlugin plugin) {
         this.plugin = plugin;
@@ -64,21 +62,26 @@ public class RaceListener implements Listener {
     }
 
     /**
-     * OPTIMIZATION: Pre-cache ring locations to avoid repeated config lookups
+     * Pre-cache ring definitions to avoid repeated config lookups.
+     * v1.4.0: Now uses RingDefinition with type-aware detection.
      */
     private void cacheRingData() {
-        Map<String, Location> rings = plugin.getConfigManager().getRingLocations();
-        for (Map.Entry<String, Location> entry : rings.entrySet()) {
-            ringDataCache.put(entry.getKey(), new RingData(entry.getValue()));
-        }
+        ringDefCache.putAll(plugin.getConfigManager().getRingDefinitions());
     }
 
     /**
      * Refresh ring cache (call this after adding/removing rings)
      */
     public void refreshRingCache() {
-        ringDataCache.clear();
+        ringDefCache.clear();
         cacheRingData();
+    }
+
+    /**
+     * Get the cached ring definitions (for use by other systems).
+     */
+    public Map<String, RingDefinition> getCachedRings() {
+        return Collections.unmodifiableMap(ringDefCache);
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -143,25 +146,18 @@ public class RaceListener implements Listener {
     }
 
     /**
-     * OPTIMIZED: Ring detection using cached squared distances
+     * Ring detection using RingDefinition.contains() which handles
+     * both POINT (sphere) and REGION (cuboid) detection automatically.
      */
     private void checkRings(Player player, UUID uuid, Location playerLoc) {
         var playerData = raceManager.getRacePlayers().get(uuid);
         if (playerData == null || playerData.isFinished()) {
-            return; // Don't check if not racing or already finished
+            return;
         }
 
-        // OPTIMIZATION: Use squared distance to avoid expensive sqrt()
-        for (Map.Entry<String, RingData> entry : ringDataCache.entrySet()) {
-            RingData ringData = entry.getValue();
-            
-            // Quick world check
-            if (!playerLoc.getWorld().equals(ringData.location.getWorld())) {
-                continue;
-            }
-
-            // OPTIMIZATION: Use distanceSquared instead of distance
-            if (playerLoc.distanceSquared(ringData.location) <= RING_DETECTION_RADIUS_SQUARED) {
+        for (Map.Entry<String, RingDefinition> entry : ringDefCache.entrySet()) {
+            RingDefinition ring = entry.getValue();
+            if (ring.contains(playerLoc)) {
                 raceManager.passRing(player, entry.getKey());
             }
         }
@@ -218,14 +214,4 @@ public class RaceListener implements Listener {
         }
     }
 
-    /**
-     * Helper class to cache ring data
-     */
-    private static class RingData {
-        final Location location;
-        
-        RingData(Location location) {
-            this.location = location;
-        }
-    }
 }

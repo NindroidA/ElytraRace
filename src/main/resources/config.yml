@@ -1,5 +1,5 @@
 ############################################################
-#              ELYTRA RACE CONFIGURATION v1.3.0
+#              ELYTRA RACE CONFIGURATION v1.4.0
 ############################################################
 
 race:
@@ -114,16 +114,34 @@ regions: {}
 
 
 ############################################################
-#                        RINGS
+#                    RING SYSTEM (v1.4.0)
 ############################################################
-# Add rings manually:
-# /er setup addring <name>
+# Rings now support two types:
+#   POINT  - Sphere detection around a center point
+#   REGION - Cuboid detection from WorldEdit selection
 #
-# Or Import from WorldGuard
-# /er import rings
+# Orientations:
+#   VERTICAL_NS  - Ring faces North/South (XY plane)
+#   VERTICAL_EW  - Ring faces East/West (ZY plane)
+#   HORIZONTAL   - Ring faces Up/Down (XZ plane)
+#
+# Add rings:
+#   /er setup addring <name> [orientation]
+#   (With WorldEdit selection → REGION, without → POINT)
+#
+# Import from WorldGuard:
+#   /er import rings
 ############################################################
 
-rings: {}
+rings:
+  # Default orientation for new rings
+  default-orientation: "VERTICAL_NS"
+
+  # Enforce ring order (must pass ring 1 before ring 2, etc.)
+  enforce-order: true
+
+  # Default detection radius for POINT rings (blocks)
+  default-radius: 5.0
 
 
 ############################################################

@@ -369,7 +369,7 @@ public class RaceManager {
         lastCheckpoints.put(player.getUniqueId(), ringName);
         boundaryWarnings.remove(player.getUniqueId()); // Reset warnings
 
-        int totalRings = cfg.getRingLocations().size();
+        int totalRings = cfg.getRingDefinitions().size();
         int current = data.getRingsCount();
 
         player.sendMessage(cfg.getPrefix() + cfg.getMessage("ring-passed")
@@ -393,8 +393,9 @@ public class RaceManager {
         String lastRing = lastCheckpoints.get(player.getUniqueId());
         if (lastRing == null) return;
 
-        org.bukkit.Location ringLoc = cfg.getRingLocations().get(lastRing);
-        if (ringLoc == null) return;
+        var ringDef = cfg.getRingDefinitions().get(lastRing);
+        if (ringDef == null) return;
+        org.bukkit.Location ringLoc = ringDef.getCenter();
 
         double distance = player.getLocation().distance(ringLoc);
         int maxDistance = cfg.getBoundaryDistance();
@@ -423,7 +424,7 @@ public class RaceManager {
             return;
         }
 
-        int totalRings = cfg.getRingLocations().size();
+        int totalRings = cfg.getRingDefinitions().size();
         if (data.getRingsCount() < totalRings) {
             player.sendMessage(cfg.getPrefix() + "§cYou haven't passed all rings yet!");
             return;

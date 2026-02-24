@@ -66,7 +66,7 @@ public class TimerHelper {
         PlayerRaceData data = plugin.getRaceManager().getRacePlayers().get(player.getUniqueId());
         if (data == null) return;
 
-        int ringsTotal = plugin.getConfigManager().getRingLocations().size();
+        int ringsTotal = plugin.getConfigManager().getRingDefinitions().size();
         int ringsPassed = data.getRingsCount();
 
         String timeStr = formatTimeDetailed(currentTime);

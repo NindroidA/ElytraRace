@@ -7,6 +7,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.0] - 2026-02-23
+
+### Ring Data Model & Detection Overhaul
+
+Complete rewrite of the ring system with proper data modeling, multi-type detection, and orientation support.
+
+### Added
+- **`RingDefinition` data model** — Rings now have type (POINT/REGION), orientation, order, and configurable radius
+- **REGION ring type** — Select a built ring structure with WorldEdit wand, then `/er setup addring <name>` saves the cuboid bounds for precise detection
+- **POINT ring type** — Stand at a location and add ring (sphere detection, same as legacy behavior)
+- **Ring orientations** — `VERTICAL_NS` (face N/S), `VERTICAL_EW` (face E/W), `HORIZONTAL` (face up/down)
+- **Orientation-aware preview** — Ring preview particles now render as circles matching the ring's orientation
+- **Configurable default radius** — `rings.default-radius` in config.yml (default 5.0 blocks)
+- **Ring order tracking** — Each ring has an order number, auto-incremented when adding
+- **`/er setup addring <name> [orientation]`** — Optional orientation argument when adding rings
+
+### Changed
+- Ring detection now uses `RingDefinition.contains()` — supports both sphere (POINT) and cuboid (REGION) detection
+- Ring listing (`/er listrings`) now shows type, orientation, order, and radius for each ring
+- All internal references migrated from `getRingLocations()` to `getRingDefinitions()`
+- Region import now saves rings with proper type, order, and orientation metadata
+
+### Config
+- New `rings.default-orientation: "VERTICAL_NS"` setting
+- New `rings.enforce-order: true` setting
+- New `rings.default-radius: 5.0` setting
+
+---
+
+## [1.3.0] - 2026-02-22
+
+### Bug Fixes & Cleanup
+- Fixed missing `addring`/`removering` commands
+- Fixed rocket anti-cheat (max uses now configurable via `max-rocket-uses`)
+- Fixed DNF stats tracking in race end
+- Updated all repository links to NindroidA fork
+- Removed placeholder Discord/email links
+- Updated plugin authors to include NindroidA
+- Deleted unused deploy.yml workflow
+- Updated release.yml with version in release name
+
+---
+
 ## [1.1.0] - 2025-01-XX
 
 ### 🎉 Major Release - Enhanced Systems Update

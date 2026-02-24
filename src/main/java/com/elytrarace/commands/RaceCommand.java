@@ -10,6 +10,8 @@
 package com.elytrarace.commands;
 
 import com.elytrarace.ElytraRacePlugin;
+import com.elytrarace.data.RingDefinition;
+import com.elytrarace.data.RingDefinition.Orientation;
 import com.elytrarace.managers.PersonalBestManager;
 import com.elytrarace.managers.RegionImportManager;
 import com.elytrarace.managers.RegionManager;
@@ -27,6 +29,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
+import java.util.Comparator;
 
 /**
  * COMPLETE /er command with ALL 10 NEW FEATURES
@@ -102,7 +105,7 @@ public class RaceCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage("§e3. §fDo NOT go backwards through rings");
         sender.sendMessage("§e4. §fRequire §c" + plugin.getConfigManager().getRequiredRockets() + " rockets §fto ready up");
         sender.sendMessage("§e5. §fMax §c" + plugin.getConfigManager().getMaxRocketUses() + " rocket boosts §fduring race");
-        sender.sendMessage("§e6. §fMust complete all §e" + plugin.getConfigManager().getRingLocations().size() + " rings §fbefore finish");
+        sender.sendMessage("§e6. §fMust complete all §e" + plugin.getConfigManager().getRingDefinitions().size() + " rings §fbefore finish");
         sender.sendMessage("§e7. §fTime limit: §c" + plugin.getConfigManager().getAutoFinishTime() + " seconds");
         sender.sendMessage("");
         sender.sendMessage("§c§lDISQUALIFICATION:");
@@ -128,7 +131,7 @@ public class RaceCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        int total = plugin.getConfigManager().getRingLocations().size();
+        int total = plugin.getConfigManager().getRingDefinitions().size();
         int passed = data.getRingsCount();
         double time = data.getCurrentTime();
 
@@ -401,20 +404,44 @@ public class RaceCommand implements CommandExecutor, TabCompleter {
                     return;
                 }
 
-                Map<String, Location> rings = plugin.getConfigManager().getRingLocations();
+                Map<String, RingDefinition> rings = plugin.getConfigManager().getRingDefinitions();
                 Particle particle = getParticleType();
                 int count = plugin.getConfigManager().getPreviewParticleCount();
 
-                for (Location ringLoc : rings.values()) {
+                for (RingDefinition ring : rings.values()) {
+                    Location center = ring.getCenter();
+                    double r = ring.getVisualRadius();
+
                     for (UUID uuid : previewEnabled) {
                         Player player = Bukkit.getPlayer(uuid);
-                        if (player != null && player.getWorld().equals(ringLoc.getWorld())) {
-                            // Create circle of particles
+                        if (player != null && player.getWorld().equals(center.getWorld())) {
+                            // Orientation-aware particle circle
                             for (int i = 0; i < count; i++) {
                                 double angle = 2 * Math.PI * i / count;
-                                double x = ringLoc.getX() + 5 * Math.cos(angle);
-                                double z = ringLoc.getZ() + 5 * Math.sin(angle);
-                                Location particleLoc = new Location(ringLoc.getWorld(), x, ringLoc.getY(), z);
+                                double px, py, pz;
+
+                                switch (ring.getOrientation()) {
+                                    case VERTICAL_NS -> {
+                                        // Ring face in XY plane — circle varies X and Y
+                                        px = center.getX() + r * Math.cos(angle);
+                                        py = center.getY() + r * Math.sin(angle);
+                                        pz = center.getZ();
+                                    }
+                                    case VERTICAL_EW -> {
+                                        // Ring face in ZY plane — circle varies Z and Y
+                                        px = center.getX();
+                                        py = center.getY() + r * Math.sin(angle);
+                                        pz = center.getZ() + r * Math.cos(angle);
+                                    }
+                                    default -> {
+                                        // HORIZONTAL: Ring face in XZ plane (legacy)
+                                        px = center.getX() + r * Math.cos(angle);
+                                        py = center.getY();
+                                        pz = center.getZ() + r * Math.sin(angle);
+                                    }
+                                }
+
+                                Location particleLoc = new Location(center.getWorld(), px, py, pz);
                                 player.spawnParticle(particle, particleLoc, 1, 0, 0, 0, 0);
                             }
                         }
@@ -510,17 +537,24 @@ public class RaceCommand implements CommandExecutor, TabCompleter {
     }
 
     private boolean handleListRings(CommandSender sender) {
-        Map<String, Location> rings = plugin.getConfigManager().getRingLocations();
+        Map<String, RingDefinition> rings = plugin.getConfigManager().getRingDefinitions();
         sender.sendMessage("§6§l╔═══ Configured Rings ═══╗");
         if (rings.isEmpty()) {
             sender.sendMessage("§7No rings configured.");
-            sender.sendMessage("§7Use /er import rings or /er setup addring");
+            sender.sendMessage("§7Use /er import rings or /er setup addring <name> [orientation]");
         } else {
-            for (String ringName : rings.keySet()) {
-                Location loc = rings.get(ringName);
-                sender.sendMessage(String.format("§e• %s §7- (%.0f, %.0f, %.0f)", 
-                    ringName, loc.getX(), loc.getY(), loc.getZ()));
-            }
+            // Sort by order
+            rings.values().stream()
+                .sorted(Comparator.comparingInt(RingDefinition::getOrder))
+                .forEach(ring -> {
+                    Location c = ring.getCenter();
+                    String typeTag = ring.getType() == RingDefinition.RingType.REGION ? "§b[REGION]" : "§d[POINT]";
+                    sender.sendMessage(String.format("§e#%d %s %s §7%s (%.0f, %.0f, %.0f) r=%.1f",
+                        ring.getOrder(), typeTag, ring.getName(),
+                        ring.getOrientation().name(),
+                        c.getX(), c.getY(), c.getZ(),
+                        ring.getType() == RingDefinition.RingType.REGION ? ring.getVisualRadius() : ring.getRadius()));
+                });
             sender.sendMessage("§7Total: §e" + rings.size() + " §7ring(s)");
         }
         sender.sendMessage("§6§l╚═════════════════════════╝");
@@ -551,7 +585,7 @@ public class RaceCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage("§e/er setup lobby §7- Set lobby");
             sender.sendMessage("§e/er setup start §7- Set start region");
             sender.sendMessage("§e/er setup finish §7- Set finish region");
-            sender.sendMessage("§e/er setup addring <name> §7- Add ring at your location");
+            sender.sendMessage("§e/er setup addring <name> [orientation] §7- Add ring (WE sel → REGION)");
             sender.sendMessage("§e/er setup removering <name> §7- Remove a ring");
         }
         sender.sendMessage("§6§l╚════════════════════════════════════╝");
@@ -608,18 +642,57 @@ public class RaceCommand implements CommandExecutor, TabCompleter {
                 return true;
             case "addring":
                 if (args.length < 3) {
-                    sender.sendMessage("§cUsage: /er setup addring <name>");
+                    sender.sendMessage("§cUsage: /er setup addring <name> [orientation]");
+                    sender.sendMessage("§7Orientations: VERTICAL_NS, VERTICAL_EW, HORIZONTAL");
+                    sender.sendMessage("§7Use a WorldEdit selection for REGION rings, or stand at location for POINT rings.");
                     return true;
                 }
                 String ringName = args[2];
-                plugin.getConfigManager().addRing(ringName, player.getLocation());
-                plugin.getRaceListener().refreshRingCache();
+                int nextOrder = plugin.getConfigManager().getNextRingOrder();
+                double defaultRadius = plugin.getConfigManager().getDefaultRingRadius();
+
+                // Parse optional orientation argument
+                Orientation orient;
+                if (args.length >= 4) {
+                    try {
+                        orient = Orientation.valueOf(args[3].toUpperCase());
+                    } catch (IllegalArgumentException e) {
+                        sender.sendMessage("§cInvalid orientation: " + args[3]);
+                        sender.sendMessage("§7Valid: VERTICAL_NS, VERTICAL_EW, HORIZONTAL");
+                        return true;
+                    }
+                } else {
+                    try {
+                        orient = Orientation.valueOf(plugin.getConfigManager().getDefaultOrientation());
+                    } catch (IllegalArgumentException e) {
+                        orient = Orientation.VERTICAL_NS;
+                    }
+                }
+
+                // Check if player has a WorldEdit selection → REGION ring
+                if (we.isWorldEditAvailable() && we.hasSelection(player)) {
+                    Location weMin = we.getSelectionMin(player);
+                    Location weMax = we.getSelectionMax(player);
+                    if (weMin != null && weMax != null) {
+                        plugin.getConfigManager().addRingRegion(ringName, weMin, weMax, nextOrder, orient, defaultRadius);
+                        plugin.getRaceListener().refreshRingCache();
+                        sender.sendMessage(plugin.getConfigManager().getPrefix() +
+                            "§aREGION ring '" + ringName + "' added (order #" + nextOrder + ", " + orient.name() + ")");
+                        sender.sendMessage(String.format("§7  Min: (%.0f, %.0f, %.0f) → Max: (%.0f, %.0f, %.0f)",
+                            weMin.getX(), weMin.getY(), weMin.getZ(),
+                            weMax.getX(), weMax.getY(), weMax.getZ()));
+                        return true;
+                    }
+                }
+
+                // No selection → POINT ring at player location
                 Location loc = player.getLocation();
+                plugin.getConfigManager().addRingPoint(ringName, loc, nextOrder, orient, defaultRadius);
+                plugin.getRaceListener().refreshRingCache();
                 sender.sendMessage(plugin.getConfigManager().getPrefix() +
-                    "§aRing '" + ringName + "' added at X: " +
-                    String.format("%.0f", loc.getX()) + " Y: " +
-                    String.format("%.0f", loc.getY()) + " Z: " +
-                    String.format("%.0f", loc.getZ()));
+                    "§aPOINT ring '" + ringName + "' added (order #" + nextOrder + ", " + orient.name() + ")");
+                sender.sendMessage(String.format("§7  At: (%.0f, %.0f, %.0f) radius: %.1f",
+                    loc.getX(), loc.getY(), loc.getZ(), defaultRadius));
                 return true;
             case "removering":
                 if (args.length < 3) {
@@ -627,7 +700,7 @@ public class RaceCommand implements CommandExecutor, TabCompleter {
                     return true;
                 }
                 String removeTarget = args[2];
-                if (!plugin.getConfigManager().getRingLocations().containsKey(removeTarget)) {
+                if (!plugin.getConfigManager().getRingDefinitions().containsKey(removeTarget)) {
                     sender.sendMessage(plugin.getConfigManager().getPrefix() +
                         "§cRing not found: " + removeTarget);
                     return true;
@@ -671,7 +744,7 @@ public class RaceCommand implements CommandExecutor, TabCompleter {
             }
         } else if (args.length == 3) {
             if (args[0].equalsIgnoreCase("setup") && args[1].equalsIgnoreCase("removering")) {
-                return new ArrayList<>(plugin.getConfigManager().getRingLocations().keySet());
+                return new ArrayList<>(plugin.getConfigManager().getRingDefinitions().keySet());
             }
         }
         return Collections.emptyList();

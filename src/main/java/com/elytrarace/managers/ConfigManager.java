@@ -10,7 +10,11 @@
 package com.elytrarace.managers;
 
 import com.elytrarace.ElytraRacePlugin;
+import com.elytrarace.data.RingDefinition;
+import com.elytrarace.data.RingDefinition.Orientation;
+import com.elytrarace.data.RingDefinition.RingType;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import java.util.*;
 
@@ -59,6 +63,11 @@ public class ConfigManager {
         plugin.getConfig().addDefault("ring-preview.enabled", true);
         plugin.getConfig().addDefault("ring-preview.particle", "VILLAGER_HAPPY");
         plugin.getConfig().addDefault("ring-preview.particle-count", 20);
+
+        // NEW: v1.4.0 - Ring system settings
+        plugin.getConfig().addDefault("rings.default-orientation", "VERTICAL_NS");
+        plugin.getConfig().addDefault("rings.enforce-order", true);
+        plugin.getConfig().addDefault("rings.default-radius", 5.0);
 
         plugin.getConfig().addDefault("messages.prefix", "&6[ElytraRace] &f");
         plugin.getConfig().addDefault("messages.race-started", "&aThe race has started! Fly through all the rings!");
@@ -184,6 +193,19 @@ public class ConfigManager {
         return plugin.getConfig().getInt("ring-preview.particle-count", 20);
     }
 
+    // NEW: v1.4.0 - Ring system getters
+    public String getDefaultOrientation() {
+        return plugin.getConfig().getString("rings.default-orientation", "VERTICAL_NS");
+    }
+
+    public boolean isRingOrderEnforced() {
+        return plugin.getConfig().getBoolean("rings.enforce-order", true);
+    }
+
+    public double getDefaultRingRadius() {
+        return plugin.getConfig().getDouble("rings.default-radius", 5.0);
+    }
+
     public Location getLobbyLocation() {
         ConfigurationSection lobby = plugin.getConfig().getConfigurationSection("lobby");
         if (lobby == null) return null;
@@ -245,6 +267,134 @@ public class ConfigManager {
     public void clearAllRings() {
         plugin.getConfig().set("rings", null);
         plugin.saveConfig();
+    }
+
+    /**
+     * Save a POINT-type ring (player standing location, no WorldEdit selection).
+     */
+    public void addRingPoint(String ringName, Location loc, int order, Orientation orientation, double radius) {
+        String path = "rings." + ringName;
+        plugin.getConfig().set(path + ".type", "POINT");
+        plugin.getConfig().set(path + ".world", loc.getWorld().getName());
+        plugin.getConfig().set(path + ".x", loc.getX());
+        plugin.getConfig().set(path + ".y", loc.getY());
+        plugin.getConfig().set(path + ".z", loc.getZ());
+        plugin.getConfig().set(path + ".order", order);
+        plugin.getConfig().set(path + ".orientation", orientation.name());
+        plugin.getConfig().set(path + ".radius", radius);
+        plugin.saveConfig();
+    }
+
+    /**
+     * Save a REGION-type ring (from WorldEdit cuboid selection).
+     */
+    public void addRingRegion(String ringName, Location min, Location max, int order, Orientation orientation, double radius) {
+        String path = "rings." + ringName;
+        plugin.getConfig().set(path + ".type", "REGION");
+        plugin.getConfig().set(path + ".world", min.getWorld().getName());
+        plugin.getConfig().set(path + ".min.x", min.getX());
+        plugin.getConfig().set(path + ".min.y", min.getY());
+        plugin.getConfig().set(path + ".min.z", min.getZ());
+        plugin.getConfig().set(path + ".max.x", max.getX());
+        plugin.getConfig().set(path + ".max.y", max.getY());
+        plugin.getConfig().set(path + ".max.z", max.getZ());
+        plugin.getConfig().set(path + ".order", order);
+        plugin.getConfig().set(path + ".orientation", orientation.name());
+        plugin.getConfig().set(path + ".radius", radius);
+        plugin.saveConfig();
+    }
+
+    /**
+     * Load all rings as RingDefinitions. Backward-compatible with legacy configs
+     * that only store x/y/z/world (treats them as POINT with defaults).
+     */
+    public Map<String, RingDefinition> getRingDefinitions() {
+        Map<String, RingDefinition> rings = new LinkedHashMap<>();
+        ConfigurationSection ringsSection = plugin.getConfig().getConfigurationSection("rings");
+
+        if (ringsSection == null) return rings;
+
+        // Skip non-ring keys (settings like default-orientation, enforce-order, default-radius)
+        double defaultRadius = getDefaultRingRadius();
+        String defaultOrientStr = getDefaultOrientation();
+        Orientation defaultOrientation;
+        try {
+            defaultOrientation = Orientation.valueOf(defaultOrientStr);
+        } catch (IllegalArgumentException e) {
+            defaultOrientation = Orientation.VERTICAL_NS;
+        }
+
+        int autoOrder = 1;
+        for (String ringName : ringsSection.getKeys(false)) {
+            // Skip config settings stored under rings.*
+            if (ringName.equals("default-orientation") || ringName.equals("enforce-order") || ringName.equals("default-radius")) {
+                continue;
+            }
+
+            ConfigurationSection ring = ringsSection.getConfigurationSection(ringName);
+            if (ring == null) continue;
+
+            String worldName = ring.getString("world");
+            if (worldName == null) continue;
+            World world = plugin.getServer().getWorld(worldName);
+            if (world == null) continue;
+
+            // Parse type (default POINT for legacy)
+            String typeStr = ring.getString("type", "POINT");
+            RingType type;
+            try {
+                type = RingType.valueOf(typeStr);
+            } catch (IllegalArgumentException e) {
+                type = RingType.POINT;
+            }
+
+            // Parse orientation
+            String orientStr = ring.getString("orientation", defaultOrientStr);
+            Orientation orientation;
+            try {
+                orientation = Orientation.valueOf(orientStr);
+            } catch (IllegalArgumentException e) {
+                orientation = defaultOrientation;
+            }
+
+            int order = ring.getInt("order", autoOrder);
+            double radius = ring.getDouble("radius", defaultRadius);
+
+            if (type == RingType.REGION && ring.getConfigurationSection("min") != null) {
+                ConfigurationSection minSec = ring.getConfigurationSection("min");
+                ConfigurationSection maxSec = ring.getConfigurationSection("max");
+                if (minSec != null && maxSec != null) {
+                    Location min = new Location(world, minSec.getDouble("x"), minSec.getDouble("y"), minSec.getDouble("z"));
+                    Location max = new Location(world, maxSec.getDouble("x"), maxSec.getDouble("y"), maxSec.getDouble("z"));
+                    rings.put(ringName, new RingDefinition(ringName, order, orientation, radius, min, max));
+                }
+            } else {
+                // POINT type or legacy format
+                double x = ring.getDouble("x");
+                double y = ring.getDouble("y");
+                double z = ring.getDouble("z");
+                Location center = new Location(world, x, y, z);
+                rings.put(ringName, new RingDefinition(ringName, order, orientation, radius, center));
+            }
+
+            autoOrder++;
+        }
+
+        return rings;
+    }
+
+    /**
+     * Get the next available ring order number.
+     */
+    public int getNextRingOrder() {
+        Map<String, RingDefinition> existing = getRingDefinitions();
+        int max = 0;
+        for (RingDefinition def : existing.values()) {
+            if (def.getOrder() > max) {
+                max = def.getOrder();
+            }
+        }
+        return max + 1;
     }
 
     public String getMessage(String key) {
