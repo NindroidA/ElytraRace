@@ -12,7 +12,9 @@ package com.elytrarace.utils;
 
 import com.elytrarace.ElytraRacePlugin;
 import com.elytrarace.data.PlayerRaceData;
+import com.elytrarace.data.RingDefinition;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.util.UUID;
@@ -72,7 +74,50 @@ public class TimerHelper {
         String timeStr = formatTimeDetailed(currentTime);
         String progressStr = ringsPassed + "/" + ringsTotal;
 
-        player.sendActionBar("§6⏱ §e" + timeStr + " §7| §aRings: §e" + progressStr);
+        // GTA-style navigation indicator
+        RingDefinition nextRing = plugin.getRaceManager().getNextRingForPlayer(player.getUniqueId());
+        String navStr = "";
+        if (nextRing != null) {
+            Location center = nextRing.getCenter();
+            if (player.getWorld().equals(center.getWorld())) {
+                double dist = player.getLocation().distance(center);
+                String arrow = getDirectionArrow(player, center);
+                navStr = " §7| §b" + arrow + " §f" + (int) dist + "m";
+            }
+        }
+
+        player.sendActionBar("§6⏱ §e" + timeStr + " §7| §aRings: §e" + progressStr + navStr);
+    }
+
+    /**
+     * Get an 8-direction arrow pointing from the player toward the target.
+     * Computes the relative angle between player yaw and target bearing.
+     */
+    private String getDirectionArrow(Player player, Location target) {
+        Location loc = player.getLocation();
+        double dx = target.getX() - loc.getX();
+        double dz = target.getZ() - loc.getZ();
+
+        // Bearing to target (0 = south, clockwise)
+        double targetAngle = Math.toDegrees(Math.atan2(-dx, dz));
+        // Player yaw (0 = south, clockwise)
+        double playerYaw = loc.getYaw() % 360;
+        if (playerYaw < 0) playerYaw += 360;
+
+        // Relative angle: how far the target is from where the player is looking
+        double relative = targetAngle - playerYaw;
+        if (relative < 0) relative += 360;
+        if (relative > 360) relative -= 360;
+
+        // 8-direction arrows (each 45 degrees)
+        if (relative >= 337.5 || relative < 22.5) return "↑";       // Ahead
+        if (relative < 67.5) return "↗";    // Front-right
+        if (relative < 112.5) return "→";   // Right
+        if (relative < 157.5) return "↘";   // Back-right
+        if (relative < 202.5) return "↓";   // Behind
+        if (relative < 247.5) return "↙";   // Back-left
+        if (relative < 292.5) return "←";   // Left
+        return "↖";                          // Front-left
     }
 
     /**

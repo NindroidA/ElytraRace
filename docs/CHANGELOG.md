@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.4] - 2026-02-23
+
+### GTA-Style Navigation Indicator
+
+### Added
+- **GTA-style direction arrow** — Action bar shows an 8-direction arrow (↑↗→↘↓↙←↖) pointing to the next ring
+- **Distance display** — Shows distance in meters to next ring on the action bar
+- **Updated action bar format** — `⏱ 01:23.45 | Rings: 3/10 | ↗ 45m`
+- **Bearing calculation** — Computes relative angle between player yaw and target bearing for accurate directional guidance
+
+### Changed
+- `TimerHelper.updatePlayerTime()` now includes navigation data from `getNextRingForPlayer()`
+
+---
+
 ## [1.4.3] - 2026-02-23
 
 ### Ring Particles & In-Race Visibility
