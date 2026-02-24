@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.2] - 2026-02-23
+
+### Sound Effects System
+
+### Added
+- **`SoundManager` utility class** — Centralized sound effects for all race events
+- **Ring pass sound** — Satisfying XP orb ding when passing through a ring
+- **Wrong ring sound** — Bass note block buzz for hitting wrong ring
+- **Countdown sounds** — Hi-hat tick for 3/2/1, pling for GO
+- **Race finish sound** — Toast challenge complete fanfare
+- **All rings complete sound** — Level-up chime when all rings passed
+- **Ready-up sound** — Chime when player readies up
+- **Disqualification sound** — Wither death for DQ (rocket limit exceeded)
+
+---
+
 ## [1.4.1] - 2026-02-23
 
 ### Ring Order Enforcement & Mid-Race Lockout

@@ -11,6 +11,7 @@ package com.elytrarace.managers;
 
 import com.elytrarace.ElytraRacePlugin;
 import com.elytrarace.data.PlayerRaceData;
+import com.elytrarace.utils.SoundManager;
 import com.elytrarace.utils.TimerHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -33,6 +34,7 @@ public class RaceManager {
     private final TimerHelper timerHelper;
     private final StartingPlatformManager platformManager;
     private final PersonalBestManager personalBestManager;
+    private final SoundManager soundManager;
 
     private final Map<UUID, PlayerRaceData> racePlayers = new LinkedHashMap<>();
     private final Set<UUID> startLobbyPlayers = new LinkedHashSet<>();
@@ -61,6 +63,7 @@ public class RaceManager {
         this.timerHelper = plugin.getTimerHelper();
         this.platformManager = new StartingPlatformManager(plugin);
         this.personalBestManager = new PersonalBestManager(plugin);
+        this.soundManager = new SoundManager();
     }
 
     // NEW: Feature 1 - Force join
@@ -159,6 +162,7 @@ public class RaceManager {
         }
 
         readyPlayers.add(id);
+        soundManager.playReadyUp(player);
         player.sendMessage(cfg.getPrefix() + cfg.getMessage("ready-up"));
         broadcastToStart(cfg.getPrefix() + cfg.getMessage("player-ready")
                 .replace("{player}", player.getName())
@@ -283,9 +287,14 @@ public class RaceManager {
                 }
                 if (step[0] <= 4) {
                     timerHelper.broadcastCenterCountdownStep(step[0]);
+                    // Sound: tick for 3/2/1, GO sound on step 4
+                    if (step[0] < 4) {
+                        soundManager.broadcastSound(startLobbyPlayers, SoundManager.SoundEffect.COUNTDOWN_TICK);
+                    } else {
+                        soundManager.broadcastSound(startLobbyPlayers, SoundManager.SoundEffect.COUNTDOWN_GO);
+                    }
                 }
                 if (step[0] == 4) {
-                    // NEW: Feature 4 - Remove platform on GO
                     platformManager.removePlatformAnimated(5);
                     startRace();
                     cancel();
@@ -373,7 +382,7 @@ public class RaceManager {
         if (cfg.isRingOrderEnforced()) {
             var ringDef = cfg.getRingDefinitions().get(ringName);
             if (ringDef != null && !data.isCorrectNextRing(ringDef.getOrder())) {
-                // Wrong ring — notify player but don't pass it
+                soundManager.playWrongRing(player);
                 player.sendMessage(cfg.getPrefix() + "§c§lWRONG RING! §fYou need ring #" + data.getExpectedNextOrder() + " next.");
                 return;
             }
@@ -381,6 +390,7 @@ public class RaceManager {
 
         data.passRing(ringName);
         data.advanceExpectedOrder();
+        soundManager.playRingPass(player);
 
         // Update last checkpoint for boundary system
         lastCheckpoints.put(player.getUniqueId(), ringName);
@@ -395,6 +405,7 @@ public class RaceManager {
                 .replace("{total}", String.valueOf(totalRings)));
 
         if (current >= totalRings) {
+            soundManager.playAllRingsComplete(player);
             player.sendMessage(cfg.getPrefix() + "§eNow enter the finish region to complete the race.");
         }
     }
@@ -449,6 +460,7 @@ public class RaceManager {
 
         double time = data.finishRace();
         finishedPlayers.add(player.getUniqueId());
+        soundManager.playRaceFinish(player);
         
         // NEW: Feature 5 - Don't save stats in test mode
         if (!isInTestMode(player.getUniqueId())) {
@@ -600,6 +612,10 @@ public class RaceManager {
     public Set<UUID> getReadyPlayers() { return readyPlayers; }
     public boolean isRacing() { return racing; }
     public long getGlobalRaceSeconds() { return globalRaceSeconds; }
+    public SoundManager getSoundManager() {
+        return soundManager;
+    }
+
     public PersonalBestManager getPersonalBestManager() { return personalBestManager; }
     public StartingPlatformManager getPlatformManager() { return platformManager; }
 }

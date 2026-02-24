@@ -182,7 +182,8 @@ public class RaceListener implements Listener {
                 boolean allowed = data.useRocket();
                 if (!allowed) {
                     event.setCancelled(true);
-                    player.sendMessage(plugin.getConfigManager().getPrefix() + 
+                    plugin.getRaceManager().getSoundManager().playDisqualification(player);
+                    player.sendMessage(plugin.getConfigManager().getPrefix() +
                         "§c§lDISQUALIFIED: §fExceeded rocket limit!");
                 }
             }
